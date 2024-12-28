@@ -1,17 +1,17 @@
 NAME = cub3D
-HEADER = ./Header/cub3d.h
-CCF = cc -Wall -Wextra -Werror -O3 -I./Header -I./libft -I./minilibx-linux
-SRC = 	main.c
+HEADER = ./Headers/cub3d.h
+CCF = cc -Wall -Wextra -Werror -O3 -I./Headers -I./libft -I./minilibx-linux
+SRC = 	Srcs/main.c
 OBJ_DIR = ./Obj/
 OBJ = $(addprefix $(OBJ_DIR), $(SRC:.c=.o))
 LIBFT = ./libft/libft.a
 MLX = ./minilibx-linux/libmlx.a
-LIBS = -L./libft -L./minilibx-linux -lmlx -lXext -lX11 -lm
+LIBS = -L./libft -lft -L./minilibx-linux -lmlx -lXext -lX11 -lm
 
 all: $(NAME)
 
 $(OBJ_DIR)%.o: %.c $(HEADER)
-	@mkdir -p $(OBJ_DIR)
+	@mkdir -p $(dir $@)
 	@$(CCF) -c $< -o $@
 
 $(NAME): $(OBJ) $(LIBFT) $(MLX)
