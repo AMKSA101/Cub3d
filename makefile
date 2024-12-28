@@ -1,7 +1,7 @@
 NAME = cub3D
 HEADER = ./Headers/cub3d.h
 CCF = cc -Wall -Wextra -Werror -O3 -I./Headers -I./libft -I./minilibx-linux
-SRC = 	Srcs/main.c
+SRC = 	Srcs/main.c Srcs/get_next_line.c
 OBJ_DIR = ./Obj/
 OBJ = $(addprefix $(OBJ_DIR), $(SRC:.c=.o))
 LIBFT = ./libft/libft.a

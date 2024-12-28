@@ -6,104 +6,126 @@
 /*   By: abamksa <abamksa@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/24 11:18:49 by abamksa           #+#    #+#             */
-/*   Updated: 2024/12/28 11:46:14 by abamksa          ###   ########.fr       */
+/*   Updated: 2024/12/28 12:14:23 by abamksa          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../Headers/cub3d.h"
 
-int	get_next_line(int fd, char **str)
-{
-	char buffer[BUFFER_SIZE];
-	ssize_t bytes_read;
-	size_t total_size = 0;
-	*str = NULL;
-
-	// Reads the file content
-	while ((bytes_read = read(fd, buffer, BUFFER_SIZE)) > 0) {
-		char *new_content = (char *)realloc(*str, total_size + bytes_read + 1);
-		if (!new_content)
-		{
-			free(*str);
-			close(fd);
-			perror("Error reallocating memory");
-			return -1;
-		}
-		*str = new_content;
-		memcpy(*str + total_size, buffer, bytes_read);
-		total_size += bytes_read;
-	}
-	if (bytes_read == -1) {
-		free(*str);
-		close(fd);
-		perror("Error reading file");
-		return -1;
-	}
-	if (*str)
-		(*str)[total_size] = '\0';
-	return total_size;
-}
+void free_scene(t_scene *scene);
 
 int	parse_cub(int fd, t_scene *scene)
 {
-	char *line;
-	while (get_next_line(fd, &line) > 0)
+    char *line;
+	int map_start = 0;
+    while (get_next_line(fd, &line) > 0)
 	{
-		if (ft_strncmp(line, "NO", 3))
-		{
-			scene->north = ft_strdup(line + 3);
+		// skip spaces
+		int i = 0;
+		while (line[i] == ' ' || line[i] == '\t')
+			i++;
+		//skip empty lines
+		if (line[i] == '\0') {
+			free(line);
+			continue;
 		}
-		else if (ft_strncmp(line, "SO", 3))
+		if (ft_strncmp(line + i, "NO", 2) == 0)
 		{
-			scene->south = ft_strdup(line + 3);
+			scene->north = ft_strdup(line + i + 2);
 		}
-		else if (ft_strncmp(line, "WE", 3))
+		else if (ft_strncmp(line + i, "SO", 2) == 0)
 		{
-			scene->west = ft_strdup(line + 3);
+			scene->south = ft_strdup(line + i + 2);
 		}
-		else if (ft_strncmp(line, "EA", 3))
+		else if (ft_strncmp(line + i, "WE", 2) == 0)
 		{
-			scene->east = ft_strdup(line + 3);
+			scene->west = ft_strdup(line + i + 2);
 		}
-		else if (ft_strncmp(line, "F", 2))
+		else if (ft_strncmp(line + i, "EA", 2) == 0)
 		{
-			char **split = ft_split(line + 2, ',');
-			scene->floar[0] = ft_atoi(split[0]);
-			scene->floar[1] = ft_atoi(split[1]);
-			scene->floar[2] = ft_atoi(split[2]);
+			scene->east = ft_strdup(line + i + 2);
+		}
+		else if (ft_strncmp(line + i, "F", 1) == 0)
+		{
+			char **split = ft_split(line + i + 1, ',');
+            if(!split || split[0] == NULL || split[1] == NULL || split[2] == NULL){
+                  free(line);
+				  free(split);
+			     exit(printf("Error\nInvalid F identifier\n"));
+            }
+			scene->floor[0] = ft_atoi(split[0]);
+			scene->floor[1] = ft_atoi(split[1]);
+			scene->floor[2] = ft_atoi(split[2]);
+			int j = 0;
+			while (split[j])
+				free(split[j++]);
 			free(split);
+
 		}
-		else if (ft_strncmp(line, "C", 2))
+		else if (ft_strncmp(line + i, "C", 1) == 0)
 		{
-			char **split = ft_split(line + 2, ',');
+			char **split = ft_split(line + i + 1, ',');
+              if(!split || split[0] == NULL || split[1] == NULL || split[2] == NULL){
+                 free(line);
+				 free(split);
+			     exit(printf("Error\nInvalid C identifier\n"));
+            }
 			scene->ceiling[0] = ft_atoi(split[0]);
 			scene->ceiling[1] = ft_atoi(split[1]);
 			scene->ceiling[2] = ft_atoi(split[2]);
+            int j = 0;
+			while (split[j])
+				free(split[j++]);
 			free(split);
 		}
-		else if (ft_strncmp(line, "1", 1))
+         else
 		{
-			scene->map = ft_split(line, '\n');
-			scene->map_height = 0;
-			scene->map_width = 0;
-			while (scene->map[scene->map_height])
-			{
-				int row_length = ft_strlen(scene->map[scene->map_height]);
-				if (row_length > scene->map_width)
-					scene->map_width = row_length;
-				scene->map_height++;
-			}
-		}
-		else
-		{
-			free(line);
-			return (-1);
-		}
+             map_start = 1;
+         }
+         if (map_start){
+             //  Extract the Map (You'll need to refine this to handle the map correctly)
+             int i = 0;
+              scene->map = NULL; // just to make sure it starts as null
+             char *map_line = strtok(line, "\n");
+             while(map_line)
+             {
+                scene->map_width = strlen(map_line) > scene->map_width ? strlen(map_line) : scene->map_width;
+                char **temp = (char**)realloc(scene->map, sizeof(char*) * (i + 1));
+                if(!temp)
+                {
+                    free(line);
+					free_scene(scene);
+					exit(printf("Error\nProblem with realloc map\n"));
+                }
+                scene->map = temp;
+                scene->map[i] = strdup(map_line);
+                map_line = strtok(NULL, "\n");
+                i++;
+             }
+             scene->map_height = i;
+			 free(line);
+             break;
+        }
 		free(line);
 	}
 	return (0);
 }
-
+void free_scene(t_scene *scene)
+{
+	if (scene->north)
+		free(scene->north);
+	if (scene->south)
+		free(scene->south);
+	if (scene->west)
+		free(scene->west);
+	if (scene->east)
+		free(scene->east);
+    if (scene->map) {
+		for(size_t i = 0; i < scene->map_height; i++)
+			free(scene->map[i]);
+		free(scene->map);
+	}
+}
 int	main(int ac, char **av)
 {
 	if (ac == 2)
@@ -111,21 +133,28 @@ int	main(int ac, char **av)
 		int fd = open(av[1], O_RDONLY);
 		if (fd == -1)
 		{
-			ft_putstr_fd("Error\nCan't open file\n", 2);
-			return (1);
+			exit(printf("Error\nCan't open file\n"));
 		}
 		t_scene scene;
+		memset(&scene, 0, sizeof(t_scene)); // sets everything to null
 		if (parse_cub(fd, &scene) == -1)
 		{
-			ft_putstr_fd("Error\nInvalid file\n", 2);
-			return (1);
+			free_scene(&scene);
+			exit(printf("Error\nInvalid file\n"));
 		}
-		
+		else
+		{
+			for (size_t i = 0; i < scene.map_height; i++)
+			{
+				ft_putstr_fd(scene.map[i], 1);
+				ft_putstr_fd("\n", 1);
+			}
+		}
+		free_scene(&scene);
 	}
 	else
 	{
-		ft_putstr_fd("Error\nInvalid number of arguments\n", 2);
-		return (1);
+		exit(printf("Error\nInvalid number of arguments\n"));
 	}
 	return (0);
 }

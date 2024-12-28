@@ -6,7 +6,7 @@
 /*   By: abamksa <abamksa@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/24 10:56:12 by abamksa           #+#    #+#             */
-/*   Updated: 2024/12/28 11:27:21 by abamksa          ###   ########.fr       */
+/*   Updated: 2024/12/28 12:15:16 by abamksa          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,11 +36,12 @@ typedef struct s_scene
 	char *south;
 	char *west;
 	char *east;
-	char **map;
-	int floar[3];
+	int floor[3];
 	int ceiling[3];
-	int map_width;
-	int map_height;
+	char **map;
+	size_t map_width;
+	size_t map_height;
 } t_scene;
 
+int	get_next_line(int fd, char **str);
 #endif
