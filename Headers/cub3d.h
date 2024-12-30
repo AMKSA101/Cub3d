@@ -6,7 +6,7 @@
 /*   By: abamksa <abamksa@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/24 10:56:12 by abamksa           #+#    #+#             */
-/*   Updated: 2024/12/28 12:15:16 by abamksa          ###   ########.fr       */
+/*   Updated: 2024/12/30 11:20:16 by abamksa          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,4 +44,8 @@ typedef struct s_scene
 } t_scene;
 
 int	get_next_line(int fd, char **str);
+void print_error(char *error, char *file, char *line);
+void free_scene(t_scene *scene);
+int	parse_cub(int fd, t_scene *scene);
+
 #endif
