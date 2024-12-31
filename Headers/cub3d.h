@@ -6,7 +6,7 @@
 /*   By: abamksa <abamksa@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/24 10:56:12 by abamksa           #+#    #+#             */
-/*   Updated: 2024/12/30 11:20:16 by abamksa          ###   ########.fr       */
+/*   Updated: 2024/12/31 08:55:11 by abamksa          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,8 +43,18 @@ typedef struct s_scene
 	size_t map_height;
 } t_scene;
 
+typedef struct s_data
+{
+	void *img;
+	char *addr;
+	int bits_per_pixel;
+	int line_length;
+	int endian;
+	t_scene *scene;
+} t_data;
+
 int	get_next_line(int fd, char **str);
-void print_error(char *error, char *file, char *line);
+void print_error(char *error, char *file, int line);
 void free_scene(t_scene *scene);
 int	parse_cub(int fd, t_scene *scene);
 
