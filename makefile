@@ -1,6 +1,6 @@
 NAME = cub3D
 HEADER = ./Headers/cub3d.h
-CCF = cc -Wall -Wextra -Werror -O3 -g -I./Headers -I./libft -I./minilibx-linux
+CCF = cc -Wall -Wextra -Werror -O3 -g -fsanitize=address -I./Headers -I./libft -I./minilibx-linux
 SRC = 	Srcs/main.c Srcs/get_next_line.c Srcs/parse_file.c Srcs/utils_1.c
 OBJ_DIR = ./Obj/
 OBJ = $(addprefix $(OBJ_DIR), $(SRC:.c=.o))
