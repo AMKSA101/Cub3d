@@ -6,7 +6,7 @@
 /*   By: abamksa <abamksa@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/24 11:18:49 by abamksa           #+#    #+#             */
-/*   Updated: 2025/01/02 11:26:34 by abamksa          ###   ########.fr       */
+/*   Updated: 2025/01/04 12:19:07 by abamksa          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,12 @@ int parse_map(char **map, t_scene *scene);
 int parse_texture(char **texture, t_scene *scene);
 int parse_color(char **color, t_scene *scene);
 int parse_map(char **map, t_scene *scene);
+static int parse_texture_line(char *line, t_scene *scene);
+static int parse_color_line(char *line, t_scene *scene);
+static int check_map_line(char *line);
+static int parse_rgb_values(char *str, int *r, int *g, int *b);
+static void init_scene_data(t_scene *scene);
+static int check_map_valid(char **map, t_scene *scene);
 
 int	main(int ac, char **av)
 {
@@ -135,6 +141,41 @@ int	parse_cube(int fd, int line_count, t_scene *scene __attribute_maybe_unused__
 	return (0);
 }
 
+int ft_alloc(char ***arr, int size)
+{
+	int i;
+
+	i = 0;
+	*arr = (char **)malloc(sizeof(char *) * (size + 1));
+	if (!*arr)
+	{
+		print_error(strerror(errno), __FILE__, __LINE__);
+		return(-1);
+	}
+	while (i < size)
+	{
+		(*arr)[i] = NULL;
+		i++;
+	}
+	(*arr)[i] = NULL;
+	return (0);
+}
+
+void double_free(char **arr)
+{
+	int i;
+
+	if (arr == NULL)
+		return;
+	i = 0;
+	while (arr[i])
+	{
+		free(arr[i]);
+		i++;
+	}
+	free(arr);
+}
+
 int check_file_input(char **content, int size, t_scene *scene )
 {
 	char **texture;
@@ -175,68 +216,216 @@ int check_file_input(char **content, int size, t_scene *scene )
 	return (double_free(texture), double_free(color), double_free(map), 0);
 }
 
-int	parse_texture(char **texture, t_scene *scene __attribute_maybe_unused__)
-{
-	printf("Texture is this way:\n");
-	for (int i = 0; i < 4; i++)
-	{
-		printf("%s\n\n", texture[i]);
-	}
-	return (0);
-}
 
-int	parse_color(char **color, t_scene *scene __attribute_maybe_unused__)
-{
-	printf("Color is this way:\n");
-	for (int i = 0; i < 2; i++)
-	{
-		printf("%s\n\n", color[i]);
-	}
-	return (0);
-}
-
-int	parse_map(char **map, t_scene *scene __attribute_maybe_unused__)
-{
-	printf("Map is designed is follows:\n");
-	for (int i = 0; i < 14; i++)
-	{
-		printf("%s\n\n", map[i]);
-	}
-	return (0);
-}
-
-int ft_alloc(char ***arr, int size)
+// Texture Parsing function
+int	parse_texture(char **texture, t_scene *scene)
 {
 	int i;
 
+	init_scene_data(scene);
+	if (!texture)
+		return (print_error("Texture array is NULL", __FILE__, __LINE__), -1);
 	i = 0;
-	*arr = (char **)malloc(sizeof(char *) * (size + 1));
-	if (!*arr)
+	while (i < 4 && texture[i])
 	{
-		print_error(strerror(errno), __FILE__, __LINE__);
-		return(-1);
-	}
-	while (i < size)
-	{
-		(*arr)[i] = NULL;
+		if (parse_texture_line(texture[i], scene) == -1)
+			return (-1);
 		i++;
 	}
-	(*arr)[i] = NULL;
+	if (i != 4)
+		return (print_error("Invalid texture amount", __FILE__, __LINE__), -1);
 	return (0);
 }
 
-void double_free(char **arr)
+// helper function for textures
+static int parse_texture_line(char *line, t_scene *scene)
+{
+	char **parts;
+	int count;
+
+	if (!line)
+		return (print_error("Texture line is NULL", __FILE__, __LINE__), -1);
+	parts = ft_split(line, ' ');
+	if (!parts)
+		return(print_error(strerror(errno), __FILE__, __LINE__), -1);
+	count = 0;
+	while (parts[count])
+		count++;
+	if (count != 2)
+		return (double_free(parts),print_error("Invalid texture line format", __FILE__, __LINE__), -1);
+	if (ft_strncmp(parts[0], "NO", 3) == 0)
+		scene->north_texture = ft_strdup(parts[1]);
+	else if (ft_strncmp(parts[0], "SO", 3) == 0)
+		scene->south_texture = ft_strdup(parts[1]);
+	else if (ft_strncmp(parts[0], "EA", 3) == 0)
+		scene->east_texture = ft_strdup(parts[1]);
+	else if (ft_strncmp(parts[0], "WE", 3) == 0)
+		scene->west_texture = ft_strdup(parts[1]);
+	else
+		return (double_free(parts),print_error("Invalid texture identifier", __FILE__, __LINE__), -1);
+	return (double_free(parts), 0);
+}
+// Color parsing function
+int	parse_color(char **color, t_scene *scene)
 {
 	int i;
 
-	if (arr == NULL)
-		return;
+	if (!color)
+		return (print_error("color array is NULL", __FILE__, __LINE__), -1);
 	i = 0;
-	while (arr[i])
+	while (i < 2 && color[i])
 	{
-		free(arr[i]);
+		if (parse_color_line(color[i], scene) == -1)
+			return (-1);
 		i++;
 	}
-	free(arr);
+	if (i != 2)
+		return (print_error("Invalid color amount", __FILE__, __LINE__), -1);
+	return (0);
 }
 
+//helper function for color
+static int parse_color_line(char *line, t_scene *scene)
+{
+	char **parts;
+	int count;
+	int r;
+	int g;
+	int b;
+
+	if (!line)
+		return (print_error("color line is NULL", __FILE__, __LINE__), -1);
+	parts = ft_split(line, ' ');
+	if (!parts)
+		return(print_error(strerror(errno), __FILE__, __LINE__), -1);
+	count = 0;
+	while (parts[count])
+		count++;
+	if (count != 2)
+		return (double_free(parts), print_error("Invalid color line format", __FILE__, __LINE__), -1);
+	if (ft_strncmp(parts[0], "F", 2) == 0)
+	{
+		if (parse_rgb_values(parts[1], &r, &g, &b) == -1)
+			return(double_free(parts), -1);
+		scene->floor_color = (r << 16) | (g << 8) | b;
+	}
+	else if (ft_strncmp(parts[0], "C", 2) == 0)
+	{
+		if (parse_rgb_values(parts[1], &r, &g, &b) == -1)
+			return (double_free(parts), -1);
+		scene->ceiling_color = (r << 16) | (g << 8) | b;
+	}
+	else
+		return (double_free(parts), print_error("Invalid color identifier", __FILE__, __LINE__), -1);
+	return (double_free(parts), 0);
+}
+
+// Map parsing function
+int	parse_map(char **map, t_scene *scene)
+{
+	int i;
+
+	if (!map)
+		return(print_error("Map array is NULL", __FILE__, __LINE__), -1);
+	i = 0;
+	while (map[i])
+	{
+		if (check_map_line(map[i]) == -1)
+			return (-1);
+		i++;
+	}
+	scene->map_height = i;
+	scene->map = map;
+	if (check_map_valid(map, scene) == -1)
+		return (-1);
+	return (0);
+}
+
+//helper for map parsing
+static int check_map_line(char *line)
+{
+	int i;
+
+	if (!line)
+		return (print_error("Map line is NULL", __FILE__, __LINE__), -1);
+	i = 0;
+	while (line[i])
+	{
+		if (line[i] != '0' && line[i] != '1' && line[i] != 'N' && line[i] != 'S' && line[i] != 'E' && line[i] != 'W' && line[i] != ' ')
+			return (print_error("Invalid character in map", __FILE__, __LINE__), -1);
+		i++;
+	}
+	return (0);
+}
+
+static int parse_rgb_values(char *str, int *r, int *g, int *b)
+{
+	char **rgb_strs;
+	int count;
+	int temp_r;
+	int temp_g;
+	int temp_b;
+
+	if (!str)
+		return (print_error("RGB string is NULL", __FILE__, __LINE__), -1);
+	rgb_strs = ft_split(str, ',');
+	if (!rgb_strs)
+		return (print_error(strerror(errno), __FILE__, __LINE__), -1);
+	count = 0;
+	while (rgb_strs[count])
+		count++;
+	if (count != 3)
+		return(double_free(rgb_strs), print_error("Invalid RGB format", __FILE__, __LINE__), -1);
+	temp_r = ft_atoi(rgb_strs[0]);
+	temp_g = ft_atoi(rgb_strs[1]);
+	temp_b = ft_atoi(rgb_strs[2]);
+	if (temp_r < 0 || temp_r > 255 || temp_g < 0 || temp_g > 255 || temp_b < 0 || temp_b > 255)
+		return (double_free(rgb_strs), print_error("Invalid RGB value range", __FILE__, __LINE__), -1);
+	*r = temp_r;
+	*g = temp_g;
+	*b = temp_b;
+	return(double_free(rgb_strs), 0);
+}
+
+static void init_scene_data(t_scene *scene)
+{
+	scene->north_texture = NULL;
+	scene->south_texture = NULL;
+	scene->east_texture = NULL;
+	scene->west_texture = NULL;
+	scene->floor_color = 0;
+	scene->ceiling_color = 0;
+	scene->map = NULL;
+	scene->map_height = 0;
+}
+
+static int check_map_valid(char **map, t_scene *scene)
+{
+	int i;
+	int j;
+	int player_count;
+
+	if (!map)
+		return (print_error("Map array is NULL", __FILE__, __LINE__), -1);
+	player_count = 0;
+	i = 0;
+	while (map[i])
+	{
+		j = 0;
+		while (map[i][j])
+		{
+			if (map[i][j] == 'N' || map[i][j] == 'S' || map[i][j] == 'E' || map[i][j] == 'W')
+			{
+				player_count++;
+				scene->player_start_dir = map[i][j];
+				scene->player_start_x = (double)j;
+				scene->player_start_y = (double)i;
+			}
+			j++;
+		}
+		i++;
+	}
+	if (player_count != 1)
+		return(print_error("Wrong player count", __FILE__, __LINE__), -1);
+	return (0);
+}
