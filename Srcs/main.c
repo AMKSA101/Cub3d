@@ -6,7 +6,7 @@
 /*   By: abamksa <abamksa@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/24 11:18:49 by abamksa           #+#    #+#             */
-/*   Updated: 2025/01/07 11:26:32 by abamksa          ###   ########.fr       */
+/*   Updated: 2025/01/13 11:07:44 by abamksa          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,9 @@ static int parse_rgb_values(char *str, int *r, int *g, int *b);
 static void init_scene_data(t_scene *scene);
 static int check_map_valid(char **map, t_scene *scene);
 void free_scene(t_scene *scene);
+int	check_empty_line(char *line);
+int	check_separator(char *str, char c);
+
 
 int	main(int ac, char **av)
 {
@@ -44,14 +47,10 @@ int	main(int ac, char **av)
 	if (ac == 2)
 	{
 		if (ft_parse(av[1], &data) == -1)
-			return(-1);
+			return(free_scene(&scene), -1);
 		else
 		{
-			for (size_t i = 0; i < scene.map_height; i++)
-			{
-				ft_putstr_fd(scene.map[i], 1);
-				ft_putstr_fd("\n", 1);
-			}
+			ft_putstr_fd("Parsing successful\n", 1);
 		}
 		free_scene(&scene);
 	}
@@ -78,8 +77,7 @@ int	ft_parse(char *file_name, t_data *data)
 
 	scene = data->scene;
 	if (check_file_extension(file_name, ".cub") == -1)
-		return (-1);
-
+		return (print_error("Invalid file extension", __FILE__, __LINE__), -1);
 	line_count = count_lines(file_name);
 	if (line_count == -1)
 		return (-1);
@@ -94,8 +92,9 @@ int	ft_parse(char *file_name, t_data *data)
 int	check_file_extension(char *file_name, char *ext)
 {
 	size_t len = ft_strlen(file_name);
-	if (len < 4 || ft_strncmp(file_name + len - 4, ext, 4) != 0)
-		return(print_error("Invalid file extension", __FILE__, __LINE__), -1);
+	size_t size = ft_strlen(ext);
+	if (len < 4 || ft_strncmp(file_name + len - size, ext, size) != 0)
+		return(-1);
 	return (0);
 }
 
@@ -111,7 +110,7 @@ int	count_lines(char *file_name)
 	line_count = 0;
 	while ((get_next_line(fd, &line)) >= 0)
 	{
-		if (line[0] == '\0')
+		if (check_empty_line(line) == 1 || line[0] == '\0' || line[0] == '\n')
 		{
 			free(line);
 			continue;
@@ -135,7 +134,7 @@ int	parse_cube(int fd, int line_count, t_scene *scene __attribute_maybe_unused__
 	i = 0;
 	while ((get_next_line(fd, &line)) >= 0)
 	{
-		if (line[0] == '\0')
+		if (check_empty_line(line) == 1 || line[0] == '\0' || line[0] == '\n')
 		{
 			free(line);
 			continue;
@@ -151,6 +150,20 @@ int	parse_cube(int fd, int line_count, t_scene *scene __attribute_maybe_unused__
 	}
 	double_free(content);
 	return (0);
+}
+
+int	check_empty_line(char *line)
+{
+	int i;
+
+	i = 0;
+	while (line[i])
+	{
+		if (line[i] != ' ' && line[i] != '\t')
+			return (0);
+		i++;
+	}
+	return (1);
 }
 
 int ft_alloc(char ***arr, int size)
@@ -231,9 +244,9 @@ int check_file_input(char **content, int size, t_scene *scene )
 			color[i - 4] = ft_strdup(content[i]);
 	}
 	// Copy map lines
-	for (i = map_start; i < size; i++)
+	for (i = 0; i < (size - map_start); i++)
 	{
-		map[i - map_start] = ft_strdup(content[i]);
+		map[i] = ft_strdup(content[map_start + i]);
 	}
 	if (parse_texture(texture, scene) == -1)
 		return (double_free(texture), double_free(color), double_free(map), -1);
@@ -270,6 +283,18 @@ int	parse_texture(char **texture, t_scene *scene)
 	return (0);
 }
 
+static void init_scene_data(t_scene *scene)
+{
+	scene->north_texture = NULL;
+	scene->south_texture = NULL;
+	scene->east_texture = NULL;
+	scene->west_texture = NULL;
+	scene->floor_color = 0;
+	scene->ceiling_color = 0;
+	scene->map = NULL;
+	scene->map_height = 0;
+}
+
 // helper function for textures
 static int parse_texture_line(char *line, t_scene *scene)
 {
@@ -286,18 +311,19 @@ static int parse_texture_line(char *line, t_scene *scene)
 		count++;
 	if (count != 2)
 		return (double_free(parts),print_error("Invalid texture line format", __FILE__, __LINE__), -1);
-	if (ft_strncmp(parts[0], "NO", 3) == 0)
+	if (ft_strncmp(parts[0], "NO", 3) == 0 && check_file_extension(parts[1], ".xpm") == 0 && open(parts[1], O_RDONLY) != -1)
 		scene->north_texture = ft_strdup(parts[1]);
-	else if (ft_strncmp(parts[0], "SO", 3) == 0)
+	else if (ft_strncmp(parts[0], "SO", 3) == 0 && check_file_extension(parts[1], ".xpm") == 0 && open(parts[1], O_RDONLY) != -1)
 		scene->south_texture = ft_strdup(parts[1]);
-	else if (ft_strncmp(parts[0], "EA", 3) == 0)
+	else if (ft_strncmp(parts[0], "EA", 3) == 0 && check_file_extension(parts[1], ".xpm") == 0 && open(parts[1], O_RDONLY) != -1)
 		scene->east_texture = ft_strdup(parts[1]);
-	else if (ft_strncmp(parts[0], "WE", 3) == 0)
+	else if (ft_strncmp(parts[0], "WE", 3) == 0 && check_file_extension(parts[1], ".xpm") == 0 && open(parts[1], O_RDONLY) != -1)
 		scene->west_texture = ft_strdup(parts[1]);
 	else
-		return (double_free(parts),print_error("Invalid texture identifier", __FILE__, __LINE__), -1);
+		return (double_free(parts),print_error("Invalid texture file", __FILE__, __LINE__), -1);
 	return (double_free(parts), 0);
 }
+
 // Color parsing function
 int	parse_color(char **color, t_scene *scene)
 {
@@ -322,15 +348,15 @@ static int parse_color_line(char *line, t_scene *scene)
 {
 	char **parts;
 	int count;
-	int r;
-	int g;
-	int b;
+	int rgb[3];
 
 	if (!line)
 		return (print_error("color line is NULL", __FILE__, __LINE__), -1);
 	parts = ft_split(line, ' ');
 	if (!parts)
 		return(print_error(strerror(errno), __FILE__, __LINE__), -1);
+	if (check_separator(parts[1], ',') == -1)
+		return(double_free(parts), -1);
 	count = 0;
 	while (parts[count])
 		count++;
@@ -338,19 +364,66 @@ static int parse_color_line(char *line, t_scene *scene)
 		return (double_free(parts), print_error("Invalid color line format", __FILE__, __LINE__), -1);
 	if (ft_strncmp(parts[0], "F", 2) == 0)
 	{
-		if (parse_rgb_values(parts[1], &r, &g, &b) == -1)
+		if (parse_rgb_values(parts[1], &rgb[0], &rgb[1], &rgb[2]) == -1)
 			return(double_free(parts), -1);
-		scene->floor_color = (r << 16) | (g << 8) | b;
+		scene->floor_color = (rgb[0] << 16) | (rgb[1] << 8) | rgb[2];
 	}
 	else if (ft_strncmp(parts[0], "C", 2) == 0)
 	{
-		if (parse_rgb_values(parts[1], &r, &g, &b) == -1)
+		if (parse_rgb_values(parts[1], &rgb[0], &rgb[1], &rgb[2]) == -1)
 			return (double_free(parts), -1);
-		scene->ceiling_color = (r << 16) | (g << 8) | b;
+		scene->ceiling_color = (rgb[0] << 16) | (rgb[1] << 8) | rgb[2];
 	}
 	else
 		return (double_free(parts), print_error("Invalid color identifier", __FILE__, __LINE__), -1);
 	return (double_free(parts), 0);
+}
+
+int	check_separator(char *str, char c)
+{
+	int i;
+	int count;
+
+	if (!str)
+		return (print_error("Separator string is NULL", __FILE__, __LINE__), -1);
+	i = 0;
+	count = 0;
+	while (str[i])
+	{
+		if (str[i] == c)
+			count++;
+		i++;
+	}
+	if (count != 2)
+		return (print_error("Invalid separator count", __FILE__, __LINE__), -1);
+	return (0);
+}
+
+static int parse_rgb_values(char *str, int *r, int *g, int *b)
+{
+	char **rgb_strs;
+	int count;
+	int temp_rgb[3];
+
+	if (!str)
+		return (print_error("RGB string is NULL", __FILE__, __LINE__), -1);
+	rgb_strs = ft_split(str, ',');
+	if (!rgb_strs)
+		return (print_error(strerror(errno), __FILE__, __LINE__), -1);
+	count = 0;
+	while (rgb_strs[count])
+		count++;
+	if (count != 3)
+		return(double_free(rgb_strs), print_error("Invalid RGB format", __FILE__, __LINE__), -1);
+	temp_rgb[0] = ft_atoi(rgb_strs[0]);
+	temp_rgb[1] = ft_atoi(rgb_strs[1]);
+	temp_rgb[2] = ft_atoi(rgb_strs[2]);
+	if (temp_rgb[0] < 0 || temp_rgb[0] > 255 || temp_rgb[1] < 0 || temp_rgb[1] > 255 || temp_rgb[2] < 0 || temp_rgb[2] > 255)
+		return (double_free(rgb_strs), print_error("Invalid RGB value range", __FILE__, __LINE__), -1);
+	*r = temp_rgb[0];
+	*g = temp_rgb[1];
+	*b = temp_rgb[2];
+	return(double_free(rgb_strs), 0);
 }
 
 // Map parsing function
@@ -391,46 +464,6 @@ static int check_map_line(char *line)
 	return (0);
 }
 
-static int parse_rgb_values(char *str, int *r, int *g, int *b)
-{
-	char **rgb_strs;
-	int count;
-	int temp_r;
-	int temp_g;
-	int temp_b;
-
-	if (!str)
-		return (print_error("RGB string is NULL", __FILE__, __LINE__), -1);
-	rgb_strs = ft_split(str, ',');
-	if (!rgb_strs)
-		return (print_error(strerror(errno), __FILE__, __LINE__), -1);
-	count = 0;
-	while (rgb_strs[count])
-		count++;
-	if (count != 3)
-		return(double_free(rgb_strs), print_error("Invalid RGB format", __FILE__, __LINE__), -1);
-	temp_r = ft_atoi(rgb_strs[0]);
-	temp_g = ft_atoi(rgb_strs[1]);
-	temp_b = ft_atoi(rgb_strs[2]);
-	if (temp_r < 0 || temp_r > 255 || temp_g < 0 || temp_g > 255 || temp_b < 0 || temp_b > 255)
-		return (double_free(rgb_strs), print_error("Invalid RGB value range", __FILE__, __LINE__), -1);
-	*r = temp_r;
-	*g = temp_g;
-	*b = temp_b;
-	return(double_free(rgb_strs), 0);
-}
-
-static void init_scene_data(t_scene *scene)
-{
-	scene->north_texture = NULL;
-	scene->south_texture = NULL;
-	scene->east_texture = NULL;
-	scene->west_texture = NULL;
-	scene->floor_color = 0;
-	scene->ceiling_color = 0;
-	scene->map = NULL;
-	scene->map_height = 0;
-}
 
 static int check_map_valid(char **map, t_scene *scene)
 {
