@@ -6,7 +6,7 @@
 /*   By: abamksa <abamksa@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/24 11:18:49 by abamksa           #+#    #+#             */
-/*   Updated: 2025/01/16 13:34:35 by abamksa          ###   ########.fr       */
+/*   Updated: 2025/01/16 15:20:25 by abamksa          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,11 +62,16 @@ void free_scene(t_scene *scene)
 {
 	if (scene == NULL)
 		return;
-	free(scene->north_texture);
-	free(scene->south_texture);
-	free(scene->west_texture);
-	free(scene->east_texture);
-	double_free(scene->map);
+	if (scene->north_texture)
+		free(scene->north_texture);
+	if (scene->south_texture)
+		free(scene->south_texture);
+	if (scene->east_texture)
+		free(scene->east_texture);
+	if (scene->west_texture)
+		free(scene->west_texture);
+	if (scene->map)
+		double_free(scene->map);
 }
 
 int	ft_parse(char *file_name, t_data *data)
@@ -523,7 +528,8 @@ static int check_map_valid(char **map, t_scene *scene)
 	while (map[i])
 	{
 		j = 0;
-		while (map[i][j])
+		size_t map_width = ft_strlen(map[i]);
+		while (j < map_width)
 		{
 			if (map[i][j] == 'N' || map[i][j] == 'S' || map[i][j] == 'E' || map[i][j] == 'W')
 			{
@@ -534,7 +540,10 @@ static int check_map_valid(char **map, t_scene *scene)
 			}
 			if (map[i][j] == '0')
 			{
-				if (map[i][j + 1] == ' ' || map[i][j - 1] == ' ' || map[i + 1][j] == ' ' || map[i - 1][j] == ' ')
+				if ((j + 1 < map_width && map[i][j + 1] == ' ')
+				|| (j > 0 && map[i][j - 1] == ' ')
+				|| (i + 1 < scene->map_height && j < ft_strlen(map[i+1]) && map[i + 1][j] == ' ')
+				|| (i > 0 && j < ft_strlen(map[i-1]) && map[i - 1][j] == ' '))
 					return (print_error("Invalid map format", __FILE__, __LINE__), -1);
 			}
 			j++;
