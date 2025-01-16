@@ -6,7 +6,7 @@
 /*   By: abamksa <abamksa@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/24 11:18:49 by abamksa           #+#    #+#             */
-/*   Updated: 2025/01/13 11:07:44 by abamksa          ###   ########.fr       */
+/*   Updated: 2025/01/16 13:34:35 by abamksa          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,8 @@ static int check_map_valid(char **map, t_scene *scene);
 void free_scene(t_scene *scene);
 int	check_empty_line(char *line);
 int	check_separator(char *str, char c);
-
+int	check_borders(char **map, t_scene *scene);
+int	check_line(char *line);
 
 int	main(int ac, char **av)
 {
@@ -49,9 +50,7 @@ int	main(int ac, char **av)
 		if (ft_parse(av[1], &data) == -1)
 			return(free_scene(&scene), -1);
 		else
-		{
 			ft_putstr_fd("Parsing successful\n", 1);
-		}
 		free_scene(&scene);
 	}
 	else
@@ -441,9 +440,9 @@ int	parse_map(char **map, t_scene *scene)
 		i++;
 	}
 	scene->map_height = i;
-	scene->map = map;
 	if (check_map_valid(map, scene) == -1)
 		return (-1);
+	scene->map = map;
 	return (0);
 }
 
@@ -463,18 +462,64 @@ static int check_map_line(char *line)
 	}
 	return (0);
 }
+int check_line(char *line)
+{
+	int i;
 
+	if (!line)
+		return (-1);
+	i = 0;
+	while (line[i])
+	{
+		if (line[i] == '0')
+			return (-1);
+		i++;
+	}
+	return (0);
+}
+
+int	check_borders(char **map, t_scene *scene)
+{
+	size_t	i;
+	size_t	j;
+
+	i = 0;
+	if (check_line(map[i]) == -1)
+		return (-1);
+	if (check_line(map[scene->map_height - 1]) == -1)
+		return (-1);
+	while (!i)
+	{
+		j = 0;
+		while (i < scene->map_height && map[i][j])
+		{
+			if (map[i][j] == '0')
+				return (-1);
+			i++;
+		}
+		while (j < scene->map_height)
+		{
+			i = ft_strlen(map[j]) - 1;
+			if (map[j][i] == '0')
+				return (-1);
+			j++;
+		}
+	}
+	return (0);
+}
 
 static int check_map_valid(char **map, t_scene *scene)
 {
-	int i;
-	int j;
-	int player_count;
+	size_t i;
+	size_t j;
+	size_t player_count;
 
 	if (!map)
 		return (print_error("Map array is NULL", __FILE__, __LINE__), -1);
 	player_count = 0;
 	i = 0;
+	if (check_borders(map, scene) == -1)
+		return (print_error("Invalid map border", __FILE__, __LINE__), -1);
 	while (map[i])
 	{
 		j = 0;
@@ -486,6 +531,11 @@ static int check_map_valid(char **map, t_scene *scene)
 				scene->player_start_dir = map[i][j];
 				scene->player_start_x = (double)j;
 				scene->player_start_y = (double)i;
+			}
+			if (map[i][j] == '0')
+			{
+				if (map[i][j + 1] == ' ' || map[i][j - 1] == ' ' || map[i + 1][j] == ' ' || map[i - 1][j] == ' ')
+					return (print_error("Invalid map format", __FILE__, __LINE__), -1);
 			}
 			j++;
 		}
