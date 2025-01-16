@@ -6,7 +6,7 @@
 /*   By: abamksa <abamksa@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/24 10:56:12 by abamksa           #+#    #+#             */
-/*   Updated: 2025/01/07 09:22:53 by abamksa          ###   ########.fr       */
+/*   Updated: 2025/01/16 15:58:02 by abamksa          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,9 +56,36 @@ typedef struct s_data
 	t_scene *scene;
 } t_data;
 
-int	get_next_line(int fd, char **str);
-void print_error(char *error, char *file, int line);
-void free_scene(t_scene *scene);
-int	parse_cub(int fd, t_scene *scene);
+void	double_free(char **arr);
+void	free_scene(t_scene *scene);
+void	free_scene(t_scene *scene);
+int		ft_alloc(char ***arr, int size);
+int		get_next_line(int fd, char **str);
+void	print_error(char *error, char *file, int line);
+int		check_file_extension(char *file_name, char *ext);
 
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~parsing~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+int	check_file_input(char **content, int size, t_scene *scene);
+int	parse_cube(int fd, int line_count, t_scene *scene);
+int	ft_parse(char *file_name, t_data *data);
+int	count_lines(char *file_name);
+int	check_empty_line(char *line);
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~map parsing~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+int	check_line(char *line);
+int	check_map_line(char *line);
+int	parse_map(char **map, t_scene *scene);
+int	check_borders(char **map, t_scene *scene);
+int	check_map_valid(char **map, t_scene *scene);
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~texture parsing~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+int	parse_texture(char **texture, t_scene *scene);
+int	parse_texture_line(char *line, t_scene *scene);
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~color parsing~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+int	parse_rgb_values(char *str, int *r, int *g, int *b);
+int	parse_color_line(char *line, t_scene *scene);
+int	parse_color(char ** color, t_scene *scene);
+int	parse_color(char **color, t_scene *scene);
+int	check_separator(char *str, char c);
 #endif
