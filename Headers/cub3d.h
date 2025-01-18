@@ -6,7 +6,7 @@
 /*   By: abamksa <abamksa@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/24 10:56:12 by abamksa           #+#    #+#             */
-/*   Updated: 2025/01/16 15:58:02 by abamksa          ###   ########.fr       */
+/*   Updated: 2025/01/18 11:53:20 by abamksa          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,13 +46,28 @@ typedef struct s_scene
 	double player_start_y;
 } t_scene;
 
+typedef struct s_player
+{
+	double x;
+	double y;
+	double dir_x;
+	double dir_y;
+} t_player;
+
+typedef struct s_ray
+{
+	double distance;
+	int hit_x;
+	int hit_y;
+	int side;
+} t_ray;
+
 typedef struct s_data
 {
-	void *img;
-	char *addr;
-	int bits_per_pixel;
-	int line_length;
-	int endian;
+	void *mlx;
+	void *win;
+	t_player *player;
+	t_ray *ray;
 	t_scene *scene;
 } t_data;
 
