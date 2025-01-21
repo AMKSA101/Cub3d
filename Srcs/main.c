@@ -6,155 +6,83 @@
 /*   By: abamksa <abamksa@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/24 11:18:49 by abamksa           #+#    #+#             */
-/*   Updated: 2024/12/28 12:14:23 by abamksa          ###   ########.fr       */
+/*   Updated: 2025/01/18 18:39:29 by abamksa          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../Headers/cub3d.h"
 
-void free_scene(t_scene *scene);
-
-int	parse_cub(int fd, t_scene *scene)
+int init_player(t_data *data)
 {
-    char *line;
-	int map_start = 0;
-    while (get_next_line(fd, &line) > 0)
-	{
-		// skip spaces
-		int i = 0;
-		while (line[i] == ' ' || line[i] == '\t')
-			i++;
-		//skip empty lines
-		if (line[i] == '\0') {
-			free(line);
-			continue;
-		}
-		if (ft_strncmp(line + i, "NO", 2) == 0)
-		{
-			scene->north = ft_strdup(line + i + 2);
-		}
-		else if (ft_strncmp(line + i, "SO", 2) == 0)
-		{
-			scene->south = ft_strdup(line + i + 2);
-		}
-		else if (ft_strncmp(line + i, "WE", 2) == 0)
-		{
-			scene->west = ft_strdup(line + i + 2);
-		}
-		else if (ft_strncmp(line + i, "EA", 2) == 0)
-		{
-			scene->east = ft_strdup(line + i + 2);
-		}
-		else if (ft_strncmp(line + i, "F", 1) == 0)
-		{
-			char **split = ft_split(line + i + 1, ',');
-            if(!split || split[0] == NULL || split[1] == NULL || split[2] == NULL){
-                  free(line);
-				  free(split);
-			     exit(printf("Error\nInvalid F identifier\n"));
-            }
-			scene->floor[0] = ft_atoi(split[0]);
-			scene->floor[1] = ft_atoi(split[1]);
-			scene->floor[2] = ft_atoi(split[2]);
-			int j = 0;
-			while (split[j])
-				free(split[j++]);
-			free(split);
+	t_player *player;
 
-		}
-		else if (ft_strncmp(line + i, "C", 1) == 0)
-		{
-			char **split = ft_split(line + i + 1, ',');
-              if(!split || split[0] == NULL || split[1] == NULL || split[2] == NULL){
-                 free(line);
-				 free(split);
-			     exit(printf("Error\nInvalid C identifier\n"));
-            }
-			scene->ceiling[0] = ft_atoi(split[0]);
-			scene->ceiling[1] = ft_atoi(split[1]);
-			scene->ceiling[2] = ft_atoi(split[2]);
-            int j = 0;
-			while (split[j])
-				free(split[j++]);
-			free(split);
-		}
-         else
-		{
-             map_start = 1;
-         }
-         if (map_start){
-             //  Extract the Map (You'll need to refine this to handle the map correctly)
-             int i = 0;
-              scene->map = NULL; // just to make sure it starts as null
-             char *map_line = strtok(line, "\n");
-             while(map_line)
-             {
-                scene->map_width = strlen(map_line) > scene->map_width ? strlen(map_line) : scene->map_width;
-                char **temp = (char**)realloc(scene->map, sizeof(char*) * (i + 1));
-                if(!temp)
-                {
-                    free(line);
-					free_scene(scene);
-					exit(printf("Error\nProblem with realloc map\n"));
-                }
-                scene->map = temp;
-                scene->map[i] = strdup(map_line);
-                map_line = strtok(NULL, "\n");
-                i++;
-             }
-             scene->map_height = i;
-			 free(line);
-             break;
-        }
-		free(line);
+	player = &data->player;
+	player->x = data->scene->player_start_x;
+	player->y = data->scene->player_start_y;
+	if (data->scene->player_start_dir == 'N')
+	{
+		player->dir_x = 0;
+		player->dir_y = -1;
+	}
+	else if (data->scene->player_start_dir == 'S')
+	{
+		player->dir_x = 0;
+		player->dir_y = 1;
+	}
+	else if (data->scene->player_start_dir == 'W')
+	{
+		player->dir_x = -1;
+		player->dir_y = 0;
+	}
+	else if (data->scene->player_start_dir == 'E')
+	{
+		player->dir_x = 1;
+		player->dir_y = 0;
 	}
 	return (0);
 }
-void free_scene(t_scene *scene)
+
+int init_mlx(t_data *data)
 {
-	if (scene->north)
-		free(scene->north);
-	if (scene->south)
-		free(scene->south);
-	if (scene->west)
-		free(scene->west);
-	if (scene->east)
-		free(scene->east);
-    if (scene->map) {
-		for(size_t i = 0; i < scene->map_height; i++)
-			free(scene->map[i]);
-		free(scene->map);
+	data->mlx = mlx_init();
+	if (!data->mlx)
+		return(print_error("Failed to initialize MLX", __FILE__, __LINE__), -1);
+	data->win = mlx_new_window(data->mlx, data->scene->map_width * 32, data->scene->map_height * 32, "Cub3D");
+	if (!data->win)
+	{
+		mlx_destroy_display(data->mlx);
+		return(print_error("Failed to create window", __FILE__, __LINE__), -1);
 	}
+	return (0);
 }
+
 int	main(int ac, char **av)
 {
+	t_data data;
+	t_scene scene;
+
+	ft_memset(&data, 0, sizeof(t_data));
+	ft_memset(&scene, 0, sizeof(t_scene));
+	data.scene = &scene;
 	if (ac == 2)
 	{
-		int fd = open(av[1], O_RDONLY);
-		if (fd == -1)
-		{
-			exit(printf("Error\nCan't open file\n"));
-		}
-		t_scene scene;
-		memset(&scene, 0, sizeof(t_scene)); // sets everything to null
-		if (parse_cub(fd, &scene) == -1)
-		{
-			free_scene(&scene);
-			exit(printf("Error\nInvalid file\n"));
-		}
+		if (ft_parse(av[1], &data) == -1)
+			return(free_scene(&scene), -1);
 		else
 		{
-			for (size_t i = 0; i < scene.map_height; i++)
-			{
-				ft_putstr_fd(scene.map[i], 1);
-				ft_putstr_fd("\n", 1);
-			}
+			ft_putstr_fd("Parsing successful\n", 1);
+			if (init_player(&data) == -1)
+				return(free_scene(&scene), -1);
+			ft_putstr_fd("Player initialized\n", 1);
+			if (init_mlx(&data) == -1)
+				return(free_scene(&scene), -1);
+			ft_putstr_fd("MLX initialized\n", 1);
+			mlx_loop(data.mlx);
 		}
+		mlx_destroy_display(data.mlx);
 		free_scene(&scene);
 	}
 	else
-	{
-		exit(printf("Error\nInvalid number of arguments\n"));
-	}
+		return(print_error("Invalid arguments", __FILE__, __LINE__), -1);
 	return (0);
 }
