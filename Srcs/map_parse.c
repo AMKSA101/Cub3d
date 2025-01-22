@@ -6,7 +6,7 @@
 /*   By: abamksa <abamksa@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/16 15:33:10 by abamksa           #+#    #+#             */
-/*   Updated: 2025/01/16 15:38:30 by abamksa          ###   ########.fr       */
+/*   Updated: 2025/01/22 15:54:30 by abamksa          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ int check_line(char *line)
 	i = 0;
 	while (line[i])
 	{
-		if (line[i] == '0')
+		if (line[i] != '1' && line[i] != ' ')
 			return (-1);
 		i++;
 	}
@@ -80,14 +80,14 @@ int	check_borders(char **map, t_scene *scene)
 		j = 0;
 		while (i < scene->map_height && map[i][j])
 		{
-			if (map[i][j] == '0')
+			if (map[i][j] == '0' || map[i][j] != '1')
 				return (-1);
 			i++;
 		}
 		while (j < scene->map_height)
 		{
 			i = ft_strlen(map[j]) - 1;
-			if (map[j][i] == '0')
+			if (map[j][i] == '0' || map[j][i] != '1')
 				return (-1);
 			j++;
 		}
