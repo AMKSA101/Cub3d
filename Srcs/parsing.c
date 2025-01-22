@@ -6,7 +6,7 @@
 /*   By: abamksa <abamksa@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/16 15:54:15 by abamksa           #+#    #+#             */
-/*   Updated: 2025/01/16 15:55:29 by abamksa          ###   ########.fr       */
+/*   Updated: 2025/01/22 15:40:51 by abamksa          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -136,15 +136,26 @@ int check_file_input(char **content, int size, t_scene *scene )
 		return (-1);
 	}
 	// Copy texture and color lines
-	for (i = 0; i < map_start; i++)
+	int texture_index = 0;
+	int color_index = 0;
+
+	for (i = 0; i < map_start; i++) //for loop needs to be changed to while loop
 	{
-		if (i < 4)
-			texture[i] = ft_strdup(content[i]);
-		else if (i < 6)
-			color[i - 4] = ft_strdup(content[i]);
+		if (texture_index < 4 && (ft_strncmp(content[i], "NO", 2) == 0 || ft_strncmp(content[i], "SO", 2) == 0 || ft_strncmp(content[i], "WE", 2) == 0 || ft_strncmp(content[i], "EA", 2) == 0))
+		{
+			texture[texture_index] = ft_strdup(content[i]);
+			texture_index++;
+		}
+		else if (color_index < 2 && (ft_strncmp(content[i], "F", 1) == 0 || ft_strncmp(content[i], "C", 1) == 0))
+		{
+			color[color_index] = ft_strdup(content[i]);
+			color_index++;
+		}
+		else
+			return (double_free(texture), double_free(color), double_free(map), print_error("Invalid texture/color arguments", __FILE__, __LINE__), -1);
 	}
 	// Copy map lines
-	for (i = 0; i < (size - map_start); i++)
+	for (i = 0; i < (size - map_start); i++)//for loop needs to be changed to while loop
 	{
 		map[i] = ft_strdup(content[map_start + i]);
 	}
