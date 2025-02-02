@@ -13,46 +13,112 @@
 #ifndef CUB3D_H
 #define CUB3D_H
 
+// # include "../minilibx-linux/mlx.h"
+// # include "../libft/libft.h"
+// # include "AnsiEscCodes.h"
+// // # include <X11/keysym.h>
+// # include <stdbool.h>
+// # include <unistd.h>
+// # include <stdlib.h>
+// # include <string.h>
+// # include <limits.h>
+// # include <stdio.h>
+// # include <X11/X.h>
+// # include <fcntl.h>
+// # include <errno.h>
+// # include <math.h>
+
+// # define BUFFER_SIZE 1024
 # include "../minilibx-linux/mlx.h"
 # include "../libft/libft.h"
+// # include "../ft_get_next_line/get_next_line.h"
 # include "AnsiEscCodes.h"
-# include <X11/keysym.h>
+// # include <X11/keysym.h>
 # include <stdbool.h>
 # include <unistd.h>
 # include <stdlib.h>
 # include <string.h>
 # include <limits.h>
 # include <stdio.h>
-# include <X11/X.h>
+// # include <X11/X.h>
 # include <fcntl.h>
 # include <errno.h>
 # include <math.h>
 
+
+
+
 # define BUFFER_SIZE 1024
+
+# define WIDTH  1080
+# define HEIGHT  800
+# define BLOCK 50
+# define SPEED 0.1
+
+# define W 119
+# define S 115
+# define D 100
+# define A 97
+# define LEFT 65363
+# define RIGHT 65361
+# define SPACE 32
+
+# define PI 3.14159265359
+
+typedef struct s_player
+{
+	double x;
+	double y;
+	double	angle;
+	float	speed;
+
+	bool	key_up;
+	bool	key_left;
+	bool	key_down;
+	bool	key_right;
+	bool	left_rotate;
+	bool	right_rotate;
+	bool	speed_rotate;
+	double dir_x;
+	double dir_y;
+} t_player;
 
 typedef struct s_scene
 {
+	void	*mlx_ptr;
+	void	*win_ptr;
+	void	*img_ptr;
+	char	*addr;
+	void	*img;
+	char *north;
+	char *south;
+	char *west;
+	char *east;
+	int floor[3];
+	int ceiling[3];
+	char **map;
+	size_t map_width; // ft_strlen(map[i])
+	size_t map_height; // i
+	int		endian;
+	int		line_length;
+	int		bits_per_pixel;
+	double	player_start_x;
+	double	player_start_y;
+	t_player	player;
 	char *north_texture;
 	char *south_texture;
 	char *west_texture;
 	char *east_texture;
 	int floor_color;
 	int ceiling_color;
-	char **map;
-	size_t map_width;
-	size_t map_height;
+	// char **map;
+	// size_t map_width;
+	// size_t map_height;
 	char player_start_dir;
-	double player_start_x;
-	double player_start_y;
+	// double player_start_x;
+	// double player_start_y;
 } t_scene;
 
-typedef struct s_player
-{
-	double x;
-	double y;
-	double dir_x;
-	double dir_y;
-} t_player;
 
 typedef struct s_ray
 {
@@ -70,6 +136,37 @@ typedef struct s_data
 	t_ray *ray;
 	t_scene *scene;
 } t_data;
+
+
+/*init.c*/
+void	start_game(t_scene	*img);
+void	init_game(t_scene *img);
+void	init_player(t_player *player);
+/*------*/
+
+/*draw.c*/
+int	draw_loop(t_scene *img);
+void draw_wall(t_scene *img, t_player *player, float start_x, int i);
+void	my_mlx_pixel_put(t_scene *img, int x, int y, int color);
+void	draw_pixel(t_scene *img, int x, int y, int size, int color);
+void	draw_direction(t_scene *img, int x, int y, int size);
+void	draw_map(t_scene *img);
+/*------*/
+
+/*move.c*/
+int key_pres(int keycode, t_player *player);
+int key_release(int keycode, t_player *player);
+void move_player(t_scene *img, t_player *player);
+/*------*/
+
+/*utils*/
+char	**get_map();
+void	get_map_dimensions(t_scene *img);
+int is_wall(t_scene *img, float x, float y);
+void	clear_image(t_scene *img);
+bool touch(float px, float py, t_scene *img);
+float distance(float x, float y);
+/*-----*/
 
 void	double_free(char **arr);
 void	free_scene(t_scene *scene);

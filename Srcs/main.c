@@ -51,9 +51,15 @@ int	main(int ac, char **av)
 		if (ft_parse(av[1], &data) == -1)
 			return(free_scene(&scene), -1);
 		else {
-			ft_putstr_fd("Parsing successful\n", 1);
-			ft_putstr_fd("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n", 1);
-			print_scene(&scene);
+			// ft_putstr_fd("Parsing successful\n", 1);
+			// ft_putstr_fd("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n", 1);
+			// print_scene(&scene);
+			init_game(&scene);
+			mlx_hook(scene.win_ptr, 2, 1L<<0, key_pres, &scene.player);
+			mlx_hook(scene.win_ptr, 3, 1L<<1, key_release, &scene.player);
+			mlx_loop_hook(scene.mlx_ptr, draw_loop, &scene);
+			mlx_loop(scene.mlx_ptr);
+			// start_game(&scene);
 		}
 		free_scene(&scene);
 	}
