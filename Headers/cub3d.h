@@ -52,7 +52,7 @@
 
 # define WIDTH  1080
 # define HEIGHT  800
-# define BLOCK 50
+# define BLOCK 30
 # define SPEED 0.1
 
 # define W 119
@@ -71,7 +71,7 @@ typedef struct s_player
 	double y;
 	double	angle;
 	float	speed;
-
+	// char	**map;
 	bool	key_up;
 	bool	key_left;
 	bool	key_down;
@@ -85,11 +85,6 @@ typedef struct s_player
 
 typedef struct s_scene
 {
-	void	*mlx_ptr;
-	void	*win_ptr;
-	void	*img_ptr;
-	char	*addr;
-	void	*img;
 	char *north;
 	char *south;
 	char *west;
@@ -104,13 +99,13 @@ typedef struct s_scene
 	int		bits_per_pixel;
 	double	player_start_x;
 	double	player_start_y;
-	t_player	player;
 	char *north_texture;
 	char *south_texture;
 	char *west_texture;
 	char *east_texture;
 	int floor_color;
-	int ceiling_color;
+	int		ceiling_color;
+	char	*data;
 	// char **map;
 	// size_t map_width;
 	// size_t map_height;
@@ -128,43 +123,50 @@ typedef struct s_ray
 	int side;
 } t_ray;
 
+typedef struct s_mlx
+{
+	void	*mlx_ptr;
+	void	*win_ptr;
+	void	*img_ptr;
+	char	*addr;
+	void	*img;
+} t_mlx;
+
 typedef struct s_data
 {
-	void *mlx;
-	void *win;
-	t_player *player;
-	t_ray *ray;
-	t_scene *scene;
+	t_mlx		*mlx;
+	t_player	*player;
+	t_ray		*ray;
+	t_scene		*scene;
 } t_data;
 
 
 /*init.c*/
-void	start_game(t_scene	*img);
-void	init_game(t_scene *img);
-void	init_player(t_player *player);
+
+void	init_game(t_data *data);
+void	init_player(t_player *player, t_scene *img);
 /*------*/
 
 /*draw.c*/
-int	draw_loop(t_scene *img);
-void draw_wall(t_scene *img, t_player *player, float start_x, int i);
-void	my_mlx_pixel_put(t_scene *img, int x, int y, int color);
-void	draw_pixel(t_scene *img, int x, int y, int size, int color);
+int	draw_loop(t_data *data);
+void draw_wall(t_mlx *mlx, t_scene *img, t_player *player, float start_x, int i);
+void	my_mlx_pixel_put(t_mlx *mlx, t_scene *img, int x, int y, int color);
+void	draw_pixel(t_mlx *mlx, t_scene *img, int x, int y, int size, int color);
 void	draw_direction(t_scene *img, int x, int y, int size);
-void	draw_map(t_scene *img);
+void	draw_map(t_mlx *mlx, t_scene *img);
 /*------*/
 
 /*move.c*/
-int key_pres(int keycode, t_player *player);
-int key_release(int keycode, t_player *player);
+int key_pres(int keycode, t_data *data);
+int key_release(int keycode, t_data *data);
 void move_player(t_scene *img, t_player *player);
 /*------*/
 
 /*utils*/
 char	**get_map();
-void	get_map_dimensions(t_scene *img);
+void	get_map_dimensions(t_data *data, t_scene *img);
 int is_wall(t_scene *img, float x, float y);
-void	clear_image(t_scene *img);
-bool touch(float px, float py, t_scene *img);
+void	clear_image(t_mlx *mlx, t_scene *img);
 float distance(float x, float y);
 /*-----*/
 

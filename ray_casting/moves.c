@@ -1,40 +1,40 @@
 #include "../Headers/cub3d.h"
 
-int key_pres(int keycode, t_player *player)
+int key_pres(int keycode, t_data *data)
 {
 	if (keycode == W)
-		player->key_up= true;
+		data->player->key_up= true;
 	if (keycode == S)
-		player->key_down = true;
+		data->player->key_down = true;
 	if (keycode == A)
-		player->key_left = true;
+		data->player->key_left = true;
 	if (keycode == D)
-		player->key_right = true;
+		data->player->key_right = true;
 	if (keycode == LEFT)
-		player->left_rotate = true;
+		data->player->left_rotate = true;
 	if (keycode == RIGHT)
-		player->right_rotate = true;
+		data->player->right_rotate = true;
 	if (keycode == SPACE)
-		player->speed_rotate = true;
+		data->player->speed_rotate = true;
 	return (0);
 }
 
-int key_release(int keycode, t_player *player)
+int key_release(int keycode, t_data *data)
 {
 	if (keycode == W)
-		player->key_up= false;
+		data->player->key_up= false;
 	if (keycode == S)
-		player->key_down = false;
+		data->player->key_down = false;
 	if (keycode == A)
-		player->key_left = false;
+		data->player->key_left = false;
 	if (keycode == D)
-		player->key_right = false;
+		data->player->key_right = false;
 	if (keycode == LEFT)
-		player->left_rotate = false;
+		data->player->left_rotate = false;
 	if (keycode == RIGHT)
-		player->right_rotate = false;
+		data->player->right_rotate = false;
 	if (keycode == SPACE)
-		player->speed_rotate = false;
+		data->player->speed_rotate = false;
 	return (0);
 }
 
@@ -74,9 +74,9 @@ void move_player(t_scene *img, t_player *player)
 	}
 
 	if (player->speed_rotate)
-		player->speed = 1;
-	if (!player->speed_rotate)
 		player->speed = 0.5;
+	if (!player->speed_rotate)
+		player->speed = 0.2;
 	if (!is_wall(img, new_x, new_y))
 	{
 		player->x = new_x;

@@ -42,10 +42,15 @@ int	main(int ac, char **av)
 {
 	t_data data;
 	t_scene scene;
-
+	t_mlx	mlx;
+	t_player player;
 	ft_memset(&data, 0, sizeof(t_data));
 	ft_memset(&scene, 0, sizeof(t_scene));
+	ft_memset(&mlx, 0, sizeof(t_mlx));
+	ft_memset(&player, 0, sizeof(t_player));
 	data.scene = &scene;
+	data.mlx = &mlx;
+	data.player = &player;
 	if (ac == 2)
 	{
 		if (ft_parse(av[1], &data) == -1)
@@ -54,11 +59,11 @@ int	main(int ac, char **av)
 			// ft_putstr_fd("Parsing successful\n", 1);
 			// ft_putstr_fd("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n", 1);
 			// print_scene(&scene);
-			init_game(&scene);
-			mlx_hook(scene.win_ptr, 2, 1L<<0, key_pres, &scene.player);
-			mlx_hook(scene.win_ptr, 3, 1L<<1, key_release, &scene.player);
-			mlx_loop_hook(scene.mlx_ptr, draw_loop, &scene);
-			mlx_loop(scene.mlx_ptr);
+			init_game(&data);
+			mlx_hook(mlx.win_ptr, 2, 1L<<0, key_pres, &data);
+			mlx_hook(mlx.win_ptr, 3, 1L<<1, key_release, &data);
+			mlx_loop_hook(mlx.mlx_ptr, draw_loop, &data);
+			mlx_loop(mlx.mlx_ptr);
 			// start_game(&scene);
 		}
 		free_scene(&scene);
