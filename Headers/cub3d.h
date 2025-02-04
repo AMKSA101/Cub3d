@@ -6,7 +6,7 @@
 /*   By: abamksa <abamksa@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/24 10:56:12 by abamksa           #+#    #+#             */
-/*   Updated: 2025/01/18 11:53:20 by abamksa          ###   ########.fr       */
+/*   Updated: 2025/02/02 12:51:18 by abamksa          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,6 +64,14 @@
 # define SPACE 32
 
 # define PI 3.14159265359
+
+typedef struct s_texture
+{
+	void	*north;
+	void	*south;
+	void	*west;
+	void	*east;
+} t_texture;
 
 typedef struct s_player
 {
@@ -132,6 +140,7 @@ typedef struct s_data
 {
 	void *mlx;
 	void *win;
+	t_texture *texture;
 	t_player *player;
 	t_ray *ray;
 	t_scene *scene;
