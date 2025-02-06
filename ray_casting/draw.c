@@ -18,8 +18,7 @@ int	draw_loop(t_data *data)
 		i++;
 	}
 	draw_map(mlx, scene);
-	draw_pixel(mlx, scene, player->x/BLOCK*10, player->y/BLOCK*10, 2, 0x0000FF);
-	printf("%p\n", mlx->addr);
+	draw_pixel(mlx, scene, player->x/BLOCK*10, player->y/BLOCK*10, 5, 0x0000FF);
 	mlx_put_image_to_window(mlx->mlx_ptr, mlx->win_ptr, mlx->img, 0, 0);
 	return 0;
 }
@@ -35,7 +34,8 @@ void draw_wall(t_mlx *mlx, t_scene *img, t_player *player, float start_x, int i)
 
 	while (!is_wall(img, ray_x, ray_y))
 	{
-		my_mlx_pixel_put(mlx, img, ray_x/BLOCK*10, ray_y/BLOCK*10, 0x0000FF);
+		// my_mlx_pixel_put(mlx, img, ray_x/BLOCK*10, ray_y/BLOCK*10, 0x0000FF);
+		// my_mlx_pixel_put(mlx, img, ray_x, ray_y, 0x0000FF);
 		ray_x -= cos_angle*step;
 		ray_y -= sin_angle*step;
 	}
@@ -122,7 +122,7 @@ void	draw_map(t_mlx *mlx, t_scene *img)
 			if (map[y][x] == '1')
 			{
 				draw_pixel(mlx, img, x*10, y*10, 10, 0x781FA1);
-				// printf("%d  %d\n", x, y);
+				// draw_pixel(mlx, img, x*BLOCK, y*BLOCK, BLOCK, 0x781FA1);
 			}
 			x++;
 		}
