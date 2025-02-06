@@ -1,35 +1,44 @@
-#include "../Headers/cub3d.h"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   init.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: a-ait-bo <a-ait-bo@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/02/06 10:54:38 by a-ait-bo          #+#    #+#             */
+/*   Updated: 2025/02/06 11:39:47 by a-ait-bo         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
+#include "../Headers/cub3d.h"
 
 void	init_game(t_data *data)
 {
-	t_scene *img = data->scene;
-	// img->map = get_map();
-	// int i=0;
-	// while (img->map[i])
-	// {
-	// 	printf("%s\n", img->map[i]);
-	// 	i++;
-	// }
-	
-	// get_map_dimensions(img);
-	t_mlx	*mlx = data->mlx;
+	t_scene	*img;
+	t_mlx	*mlx;
+
+	mlx = data->mlx;
+	img = data->scene;
+	init_player_position(data->player, data->scene);
 	init_player(data->player, data->scene);
 	mlx->mlx_ptr = mlx_init();
 	mlx->win_ptr = mlx_new_window(mlx->mlx_ptr, WIDTH, HEIGHT, "test");
 	mlx->img = mlx_new_image(mlx->mlx_ptr, WIDTH, HEIGHT);
-	mlx->addr = mlx_get_data_addr(mlx->img, &img->bits_per_pixel, &img->line_length,
-					&img->endian);
-	// mlx_put_image_to_window(img->mlx_ptr, img->win_ptr, img->img, 0, 0);
+	mlx->addr = mlx_get_data_addr(mlx->img, &img->bits_per_pixel, \
+									&img->line_length, &img->endian);
 }
 
-void	init_player(t_player *player, t_scene *img)
+void	init_player_position(t_player *player, t_scene *img)
 {
-	int i = 0;
-	char **map = img->map;
+	char	**map;
+	int		i;
+	int		j;
+
+	i = 0;
+	map = img->map;
 	while (map[i])
 	{
-		int j = 0;
+		j = 0;
 		while (map[i][j])
 		{
 			if (map[i][j] == 'S')
@@ -41,17 +50,17 @@ void	init_player(t_player *player, t_scene *img)
 		}
 		i++;
 	}
-	
-	player->angle = PI / 2;
+}
 
+void	init_player(t_player *player, t_scene *img)
+{
+	player->angle = PI / 2;
 	player->key_up = false;
 	player->key_down = false;
 	player->key_left = false;
 	player->key_right = false;
-
 	player->left_rotate = false;
 	player->right_rotate = false;
-
 	player->speed_rotate = false;
 	player->speed = 0.2;
 }

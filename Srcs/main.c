@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: abamksa <abamksa@student.42.fr>            +#+  +:+       +#+        */
+/*   By: a-ait-bo <a-ait-bo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/24 11:18:49 by abamksa           #+#    #+#             */
-/*   Updated: 2025/02/04 12:05:42 by abamksa          ###   ########.fr       */
+/*   Updated: 2025/02/06 12:17:21 by a-ait-bo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,6 +74,7 @@ int	main(int ac, char **av)
 	t_scene scene;
 	t_mlx	mlx;
 	t_player player;
+	t_ray	ray;
 	t_texture *texture;
 
 	ft_memset(&data, 0, sizeof(t_data));
@@ -83,6 +84,7 @@ int	main(int ac, char **av)
 	data.scene = &scene;
 	data.mlx = &mlx;
 	data.player = &player;
+	data.ray = &ray;
 	if (ac == 2)
 	{
 		if (ft_parse(av[1], &data) == -1)
