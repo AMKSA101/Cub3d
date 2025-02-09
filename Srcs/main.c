@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: abamksa <abamksa@student.42.fr>            +#+  +:+       +#+        */
+/*   By: a-ait-bo <a-ait-bo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/24 11:18:49 by abamksa           #+#    #+#             */
-/*   Updated: 2025/02/04 12:05:42 by abamksa          ###   ########.fr       */
+/*   Updated: 2025/02/06 12:17:21 by a-ait-bo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,27 +72,32 @@ int	main(int ac, char **av)
 {
 	t_data data;
 	t_scene scene;
+	t_mlx	mlx;
+	t_player player;
+	t_ray	ray;
 	t_texture *texture;
 
 	ft_memset(&data, 0, sizeof(t_data));
 	ft_memset(&scene, 0, sizeof(t_scene));
+	ft_memset(&mlx, 0, sizeof(t_mlx));
+	ft_memset(&player, 0, sizeof(t_player));
 	data.scene = &scene;
+	data.mlx = &mlx;
+	data.player = &player;
+	data.ray = &ray;
 	if (ac == 2)
 	{
 		if (ft_parse(av[1], &data) == -1)
 			return(free_scene(&scene), -1);
 		else {
-			ft_putstr_fd("Parsing successful\n", 1);
-			ft_putstr_fd("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n", 1);
-			print_scene(&scene);
-			
-			// texture = load_textures(&data);
-			// data.texture = texture;
-			// init_game(&scene);
-			// mlx_hook(scene.win_ptr, 2, 1L<<0, key_pres, &scene.player);
-			// mlx_hook(scene.win_ptr, 3, 1L<<1, key_release, &scene.player);
-			// mlx_loop_hook(scene.mlx_ptr, draw_loop, &scene);
-			// mlx_loop(scene.mlx_ptr);
+			// ft_putstr_fd("Parsing successful\n", 1);
+			// ft_putstr_fd("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n", 1);
+			// print_scene(&scene);
+			init_game(&data);
+			mlx_hook(mlx.win_ptr, 2, 1L<<0, key_pres, &data);
+			mlx_hook(mlx.win_ptr, 3, 1L<<1, key_release, &data);
+			mlx_loop_hook(mlx.mlx_ptr, draw_loop, &data);
+			mlx_loop(mlx.mlx_ptr);
 			// start_game(&scene);
 		}
 		free_scene(&scene);
