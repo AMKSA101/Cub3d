@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cub3d.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: a-ait-bo <a-ait-bo@student.42.fr>          +#+  +:+       +#+        */
+/*   By: abamksa <abamksa@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/24 10:56:12 by abamksa           #+#    #+#             */
-/*   Updated: 2025/02/06 12:41:28 by a-ait-bo         ###   ########.fr       */
+/*   Updated: 2025/02/15 11:19:29 by abamksa          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,12 +63,30 @@
 
 # define PI 3.14159265359
 
+
+typedef enum e_wall
+{
+	NONE,
+	NORTH,
+	SOUTH,
+	WEST,
+	EAST,
+} t_wall;
+
 typedef struct s_texture
 {
 	void	*north;
+	int		north_width;
+	int		north_height;
 	void	*south;
+	int		south_width;
+	int		south_height;
 	void	*west;
+	int		west_width;
+	int		west_height;
 	void	*east;
+	int		east_width;
+	int		east_height;
 } t_texture;
 
 typedef struct s_player
@@ -139,6 +157,8 @@ typedef struct s_ray
 	int hit_x;
 	int hit_y;
 	int side;
+	double wall_x;
+	t_wall wall;
 } t_ray;
 
 typedef struct s_mlx
@@ -198,8 +218,8 @@ void	print_error(char *error, char *file, int line);
 int		check_file_extension(char *file_name, char *ext);
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~parsing~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-int	check_file_input(char **content, int size, t_scene *scene);
-int	parse_cube(int fd, int line_count, t_scene *scene);
+int	check_file_input(char **content, int size, t_data *data, t_scene *scene);
+int	parse_cube(int fd, int line_count, t_data *data, t_scene *scene);
 int	ft_parse(char *file_name, t_data *data);
 int	count_lines(char *file_name);
 int	check_empty_line(char *line);
@@ -212,7 +232,7 @@ int	check_borders(char **map, t_scene *scene);
 int	check_map_valid(char **map, t_scene *scene);
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~texture parsing~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-int	parse_texture(char **texture, t_scene *scene);
+int	parse_texture(char **texture, t_data *data, t_scene *scene);
 int	parse_texture_line(char *line, t_scene *scene);
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~color parsing~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/

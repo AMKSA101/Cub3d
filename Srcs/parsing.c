@@ -6,7 +6,7 @@
 /*   By: abamksa <abamksa@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/16 15:54:15 by abamksa           #+#    #+#             */
-/*   Updated: 2025/01/22 15:40:51 by abamksa          ###   ########.fr       */
+/*   Updated: 2025/02/15 10:30:14 by abamksa          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,12 +26,12 @@ int	ft_parse(char *file_name, t_data *data)
 	int fd = open(file_name, O_RDONLY);
 	if (fd == -1)
 		return(print_error(strerror(errno), __FILE__, __LINE__), -1);
-	if (parse_cube(fd, line_count, scene) == -1)
+	if (parse_cube(fd, line_count, data, scene) == -1)
 		return (-1);
 	return (0);
 }
 
-int	parse_cube(int fd, int line_count, t_scene *scene __attribute_maybe_unused__)
+int	parse_cube(int fd, int line_count, t_data *data, t_scene *scene __attribute_maybe_unused__)
 {
 	char **content;
 	char *line;
@@ -52,7 +52,7 @@ int	parse_cube(int fd, int line_count, t_scene *scene __attribute_maybe_unused__
 		free(line);
 	}
 	close(fd);
-	if (check_file_input(content, line_count, scene) == -1)
+	if (check_file_input(content, line_count, data, scene) == -1)
 	{
 		double_free(content);
 		return (-1);
@@ -101,7 +101,7 @@ int	count_lines(char *file_name)
 
 
 
-int check_file_input(char **content, int size, t_scene *scene )
+int check_file_input(char **content, int size, t_data *data, t_scene *scene )
 {
 	char **texture;
 	char **color;
@@ -159,7 +159,7 @@ int check_file_input(char **content, int size, t_scene *scene )
 	{
 		map[i] = ft_strdup(content[map_start + i]);
 	}
-	if (parse_texture(texture, scene) == -1)
+	if (parse_texture(texture, data, scene) == -1)
 		return (double_free(texture), double_free(color), double_free(map), -1);
 	if (parse_color(color, scene) == -1)
 		return (double_free(texture), double_free(color), double_free(map), -1);
