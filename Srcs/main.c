@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: abamksa <abamksa@student.42.fr>            +#+  +:+       +#+        */
+/*   By: a-ait-bo <a-ait-bo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/24 11:18:49 by abamksa           #+#    #+#             */
-/*   Updated: 2025/02/15 11:33:33 by abamksa          ###   ########.fr       */
+/*   Updated: 2025/02/20 14:57:28 by a-ait-bo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,6 +77,7 @@ int	main(int ac, char **av)
 			data.texture = get_textures(&data);
 			mlx_hook(mlx.win_ptr, 2, 1L<<0, key_pres, &data);
 			mlx_hook(mlx.win_ptr, 3, 1L<<1, key_release, &data);
+			mlx_hook(mlx.win_ptr, 17, 1L<<1, destroynotify, &data);
 			mlx_loop_hook(mlx.mlx_ptr, draw_loop, &data);
 			mlx_loop(mlx.mlx_ptr);
 		}

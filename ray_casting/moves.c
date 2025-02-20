@@ -6,11 +6,17 @@
 /*   By: a-ait-bo <a-ait-bo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 11:36:22 by a-ait-bo          #+#    #+#             */
-/*   Updated: 2025/02/06 11:37:58 by a-ait-bo         ###   ########.fr       */
+/*   Updated: 2025/02/20 15:00:02 by a-ait-bo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../Headers/cub3d.h"
+
+int	destroynotify(t_data *data)
+{
+	exit (0);
+	return (0);
+}
 
 int	key_pres(int keycode, t_data *data)
 {
@@ -43,6 +49,8 @@ int	key_release(int keycode, t_data *data)
 		data->player->left_rotate = false;
 	if (keycode == RIGHT)
 		data->player->right_rotate = false;
+	if (keycode == 65307)
+		exit (0);
 	return (0);
 }
 

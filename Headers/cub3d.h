@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cub3d.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: abamksa <abamksa@student.42.fr>            +#+  +:+       +#+        */
+/*   By: a-ait-bo <a-ait-bo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/24 10:56:12 by abamksa           #+#    #+#             */
-/*   Updated: 2025/02/15 11:19:29 by abamksa          ###   ########.fr       */
+/*   Updated: 2025/02/20 14:59:51 by a-ait-bo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -195,6 +195,7 @@ void	init_player(t_player *player, t_scene *img);
 
 
 /*move.c*/
+int		destroynotify(t_data *data);
 int		key_pres(int keycode, t_data *data);
 int		key_release(int keycode, t_data *data);
 void	move_player(t_scene *img, t_player *player);
