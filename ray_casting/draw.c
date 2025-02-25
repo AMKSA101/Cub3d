@@ -182,7 +182,8 @@ void	draw_wall(t_data *data, float start_x, int i)
 			tex_width = 0; // Or some default if needed
 			tex_height = 0;
 	}
-	if (texture == NULL) { // No wall or texture error. Render a simple color
+	if (texture == NULL) //##!!4id a4illa lmoxkil!!## // No wall or texture error. Render a simple color
+	{ 
 		while (y < data->ray->start_y) {
 			my_mlx_pixel_put(data, i, y, 0x87CEEB);
 			y++;
