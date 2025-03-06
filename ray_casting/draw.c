@@ -6,11 +6,214 @@
 /*   By: abamksa <abamksa@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 12:21:05 by a-ait-bo          #+#    #+#             */
-/*   Updated: 2025/02/15 11:45:29 by abamksa          ###   ########.fr       */
+/*   Updated: 2025/03/06 12:47:17 by abamksa          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../Headers/cub3d.h"
+
+int	key_pres(int keycode, t_data *data)
+{
+	if (keycode == W)
+		data->player->key_up = true;
+	if (keycode == S)
+		data->player->key_down = true;
+	if (keycode == A)
+		data->player->key_left = true;
+	if (keycode == D)
+		data->player->key_right = true;
+	if (keycode == LEFT)
+		data->player->left_rotate = true;
+	if (keycode == RIGHT)
+		data->player->right_rotate = true;
+	return (0);
+}
+
+int	key_release(int keycode, t_data *data)
+{
+	if (keycode == W)
+		data->player->key_up = false;
+	if (keycode == S)
+		data->player->key_down = false;
+	if (keycode == A)
+		data->player->key_left = false;
+	if (keycode == D)
+		data->player->key_right = false;
+	if (keycode == LEFT)
+		data->player->left_rotate = false;
+	if (keycode == RIGHT)
+		data->player->right_rotate = false;
+	return (0);
+}
+
+void	move_player(t_scene *img, t_player *player)
+{
+	float	angle_speed;
+
+	angle_speed = 0.01;
+	player->speed = 1;
+	player->cos_angle = cos(player->angle);
+	player->sin_angle = sin(player->angle);
+	if (player->left_rotate)
+		player->angle += angle_speed;
+	if (player->right_rotate)
+		player->angle -= angle_speed;
+	if (player->angle > 2 * PI)
+		player->angle = 0;
+	if (player->angle < 0)
+		player->angle = 2 * PI;
+	player->new_x = player->x;
+	player->new_y = player->y;
+	direction_of_player(img, player);
+	if (!is_wall(img, player->new_x, player->new_y))
+	{
+		player->x = player->new_x;
+		player->y = player->new_y;
+	}
+}
+
+void	direction_of_player(t_scene *img, t_player *player)
+{
+	if (player->key_up)
+	{
+		player->new_x -= player->cos_angle * player->speed;
+		player->new_y -= player->sin_angle * player->speed;
+	}
+	if (player->key_down)
+	{
+		player->new_x += player->cos_angle * player->speed;
+		player->new_y += player->sin_angle * player->speed;
+	}
+	if (player->key_left)
+	{
+		player->new_x -= player->sin_angle * player->speed;
+		player->new_y += player->cos_angle * player->speed;
+	}
+	if (player->key_right)
+	{
+		player->new_x += player->sin_angle * player->speed;
+		player->new_y -= player->cos_angle * player->speed;
+	}
+}
+
+void	init_game(t_data *data)
+{
+	t_scene	*img;
+	t_mlx	*mlx;
+
+	mlx = data->mlx;
+	img = data->scene;
+	init_player_position(data->player, data->scene);
+	init_player(data->player, data->scene);
+	mlx->mlx_ptr = mlx_init();
+	mlx->win_ptr = mlx_new_window(mlx->mlx_ptr, WIDTH, HEIGHT, "test");
+	mlx->img = mlx_new_image(mlx->mlx_ptr, WIDTH, HEIGHT);
+	mlx->addr = mlx_get_data_addr(mlx->img, &img->bits_per_pixel, \
+									&img->line_length, &img->endian);
+}
+
+void	init_player_position(t_player *player, t_scene *img)
+{
+	char	**map;
+	int		i;
+	int		j;
+
+	i = 0;
+	map = img->map;
+	while (map[i])
+	{
+		j = 0;
+		while (map[i][j])
+		{
+			if (map[i][j] == 'S')
+			{
+				player->x = j * BLOCK;
+				player->y = i * BLOCK;
+			}
+			j++;
+		}
+		i++;
+	}
+}
+
+void	init_player(t_player *player, t_scene *img)
+{
+	player->angle = PI / 2;
+	player->key_up = false;
+	player->key_down = false;
+	player->key_left = false;
+	player->key_right = false;
+	player->left_rotate = false;
+	player->right_rotate = false;
+	player->speed_rotate = false;
+	player->speed = 0.2;
+}
+
+int	is_wall(t_scene *img, float x, float y)
+{
+	char	**map;
+	int		map_x;
+	int		map_y;
+
+	map = img->map;
+	map_y = (int)(y / BLOCK);
+	map_x = (int)(x / BLOCK);
+	if (!map || map_y < 0 || map_x < 0 || \
+		map_y >= img->map_height || map_x >= img->map_width)
+		return (1);
+	return (map[map_y][map_x] == '1');
+}
+
+void	clear_image(t_data *data)
+{
+	int	y;
+	int	x;
+
+	y = 0;
+	while (y < HEIGHT)
+	{
+		x = 0;
+		while (x < WIDTH)
+		{
+			my_mlx_pixel_put(data, x, y, 0);
+			x++;
+		}
+		y++;
+	}
+}
+
+float	distance(float x, float y)
+{
+	return (sqrt(x * x + y * y));
+}
+
+void	get_start_x(t_data *data, t_player *player, t_mlx *mlx, t_scene *scene)
+{
+	float	fr;
+	float	start_x;
+	int		i;
+
+	i = 0;
+	start_x = player->angle - PI / 6;
+	fr = PI / 3 / WIDTH;
+	while (i < WIDTH)
+	{
+		get_wall_height(data, start_x, i);
+		start_x += fr;
+		i++;
+	}
+}
+
+void	my_mlx_pixel_put(t_data *data, int x, int y, int color)
+{
+	char	*dst;
+
+	if (x >= WIDTH || y >= HEIGHT || x < 0 || y < 0)
+		return ;
+	dst = data->mlx->addr + (y * data->scene->line_length + x * \
+	(data->scene->bits_per_pixel / 8));
+	*(unsigned int *)dst = color;
+}
 
 int	draw_loop(t_data *data)
 {
@@ -30,36 +233,6 @@ int	draw_loop(t_data *data)
 	mlx_put_image_to_window(mlx->mlx_ptr, mlx->win_ptr, mlx->img, 0, 0);
 	return (0);
 }
-
-// void	get_wall_height(t_data *data, float start_x, int i)
-// {
-// 	t_ray	*ray;
-// 	float	cos_angle;
-// 	float	sin_angle;
-// 	float	step_size;
-
-// 	ray = data->ray;
-// 	cos_angle = cos(start_x);
-// 	sin_angle = sin(start_x);
-// 	ray->ray_x = data->player->x;
-// 	ray->ray_y = data->player->y;
-// 	while (!is_wall(data->scene, ray->ray_x, ray->ray_y))
-// 	{
-// 		ray->ray_x -= cos_angle * 0.05;
-// 		ray->ray_y -= sin_angle * 0.05;
-// 	}
-// 	ray->dist = distance(ray->ray_x - data->player->x,
-// 			ray->ray_y - data->player->y);
-// 	ray->dist = ray->dist * cos(data->player->angle - start_x);
-// 	ray->height = (BLOCK / ray->dist) * (HEIGHT / 2);
-// 	ray->start_y = (HEIGHT - ray->height) / 2;
-// 	ray->end_y = ray->height + ray->start_y;
-// 	if (ray->start_y < 0)
-// 		ray->start_y = 0;
-// 	if (ray->end_y > HEIGHT)
-// 		ray->end_y = HEIGHT;
-// 	draw_wall(data, start_x, i);
-// }
 
 void	get_wall_height(t_data *data, float start_x, int i)
 {
@@ -122,110 +295,98 @@ void	get_wall_height(t_data *data, float start_x, int i)
 	draw_wall(data, start_x, i);
 }
 
-// void	draw_wall(t_data *data, float start_x, int i)
-// {
-// 	int	y;
-
-// 	y = 0;
-// 	while (y < data->ray->start_y)
-// 	{
-// 		my_mlx_pixel_put(data, i, y, 0x87CEEB);
-// 		y++;
-// 	}
-// 	y = data->ray->start_y;
-// 	while (y < data->ray->end_y)
-// 	{
-// 		my_mlx_pixel_put(data, i, y, 0x818181);
-// 		y++;
-// 	}
-// 	y = data->ray->end_y;
-// 	while (y < HEIGHT)
-// 	{
-// 		my_mlx_pixel_put(data, i, y, 0x3A3A3A);
-// 		y++;
-// 	}
-// }
-
-void	draw_wall(t_data *data, float start_x, int i)
+void    draw_wall(t_data *data, float start_x, int i)
 {
-	int	y;
-	int color;
-	t_texture *textures = data->texture; // Added textures variable
-	int tex_width, tex_height;
-	char *texture_addr;
-	int bits_per_pixel, line_length, endian;
+	int         y;
+	int         color;
+	t_texture   *textures = data->texture;
+	int         tex_width, tex_height;
+	char        *texture_addr;
+	int         bits_per_pixel, line_length, endian;
+
 	y = 0;
-	// Select the correct texture based on ray->wall_type
 	void *texture = NULL;
-	switch (data->ray->wall) {
+	double wall_x;
+	double tex_x;
+	switch (data->ray->wall)
+	{
 		case NORTH:
 			texture = textures->north;
 			tex_width = textures->north_width;
 			tex_height = textures->north_height;
+			wall_x = data->ray->ray_x;
 			break;
 		case SOUTH:
 			texture = textures->south;
 			tex_width = textures->south_width;
 			tex_height = textures->south_height;
+			wall_x = data->ray->ray_x;
 			break;
 		case EAST:
 			texture = textures->east;
 			tex_width = textures->east_width;
 			tex_height = textures->east_height;
+			wall_x = data->ray->ray_y;
 			break;
 		case WEST:
 			texture = textures->west;
 			tex_width = textures->west_width;
 			tex_height = textures->west_height;
+			wall_x = data->ray->ray_y;
 			break;
-		default: //Handle appropriately for NONE or invalid values
-			tex_width = 0; // Or some default if needed
+		default:
+			tex_width = 0;
 			tex_height = 0;
 	}
-	if (texture == NULL) { // No wall or texture error. Render a simple color
-		while (y < data->ray->start_y) {
-			my_mlx_pixel_put(data, i, y, 0x87CEEB);
+	if (texture == NULL)
+	{
+		while (y < data->ray->start_y)
+		{
+			my_mlx_pixel_put(data, i, y, data->scene->ceiling_color);
 			y++;
 		}
 		y = data->ray->start_y;
-		while (y < data->ray->end_y) {
+		while (y < data->ray->end_y)
+		{
 			my_mlx_pixel_put(data, i, y, 0x818181);
 			y++;
 		}
 		y = data->ray->end_y;
-		while (y < HEIGHT) {
-			my_mlx_pixel_put(data, i, y, 0x3A3A3A);
+		while (y < HEIGHT)
+		{
+			my_mlx_pixel_put(data, i, y, data->scene->floor_color);
 			y++;
 		}
-		return; // return early
+		return;
 	}
-	// Get the texture dimensions and address
+
 	texture_addr = mlx_get_data_addr(texture, &bits_per_pixel, &line_length, &endian);
-	// Draw the sky
-	y = 0;
-	while (y < data->ray->start_y) {
+
+	while (y < data->ray->start_y)
+	{
 		my_mlx_pixel_put(data, i, y, data->scene->ceiling_color);
 		y++;
 	}
-	// Draw the Wall with Textures
 	y = data->ray->start_y;
-	while (y < data->ray->end_y) {
-		// Calculate UV coordinates (unchanged)
+	while (y < data->ray->end_y)
+	{
 		double tex_y = (double)(y - data->ray->start_y) / (data->ray->end_y - data->ray->start_y);
-		double tex_x;
-		// Your tex_x calculation can be simplified:
-		tex_x = fmod(data->ray->wall_x, BLOCK) / BLOCK;
+
+		tex_x = fmod(wall_x, BLOCK) / BLOCK;
+
+		if (tex_x < 0)
+			tex_x += 1; // Ensure tex_x is within [0, 1)
+
 		int tex_x_int = (int)(tex_x * tex_width);
 		int tex_y_int = (int)(tex_y * tex_height);
-		// Calculate dst using the CORRECT bits_per_pixel and line_length
+
 		char *dst = texture_addr + (tex_y_int * line_length + tex_x_int * (bits_per_pixel / 8));
 		color = *(unsigned int *)dst;
 		my_mlx_pixel_put(data, i, y, color);
 		y++;
 	}
-	//Draw the floor
-	y = data->ray->end_y;
-	while (y < HEIGHT) {
+	while (y < HEIGHT)
+	{
 		my_mlx_pixel_put(data, i, y, data->scene->floor_color);
 		y++;
 	}
