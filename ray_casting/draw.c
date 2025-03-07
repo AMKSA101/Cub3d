@@ -6,7 +6,7 @@
 /*   By: abamksa <abamksa@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 12:21:05 by a-ait-bo          #+#    #+#             */
-/*   Updated: 2025/03/06 14:17:06 by abamksa          ###   ########.fr       */
+/*   Updated: 2025/03/07 14:40:01 by abamksa          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,7 +119,6 @@ void	get_wall_height(t_data *data, float start_x, int i)
 			break;
 		}
 	}
-
 	ray->dist = distance(ray->ray_x - data->player->x, ray->ray_y - data->player->y);
 	ray->dist = ray->dist * cos(data->player->angle - start_x);
 	ray->height = (BLOCK / ray->dist) * (HEIGHT / 2);
@@ -135,47 +134,42 @@ void	get_wall_height(t_data *data, float start_x, int i)
 
 void	draw_wall(t_data *data, float start_x, int i)
 {
-	int			y;
-	int			color;
-	t_texture	*textures = data->texture;
-	int			tex_width, tex_height;
-	char		*texture_addr;
-	int			bits_per_pixel, line_length, endian;
+	int y;
+	int color;
+	t_texture *textures = data->texture;
+	int tex_width, tex_height;
+	char *texture_addr;
+	int bits_per_pixel, line_length, endian;
 
 	y = 0;
 	void *texture = NULL;
-	double wall_x;
-	double tex_x;
 	switch (data->ray->wall)
 	{
-		case NORTH:
-			texture = textures->north;
-			tex_width = textures->north_width;
-			tex_height = textures->north_height;
-			wall_x = data->ray->ray_x;
-			break;
-		case SOUTH:
-			texture = textures->south;
-			tex_width = textures->south_width;
-			tex_height = textures->south_height;
-			wall_x = data->ray->ray_x;
-			break;
-		case EAST:
-			texture = textures->east;
-			tex_width = textures->east_width;
-			tex_height = textures->east_height;
-			wall_x = data->ray->ray_y;
-			break;
-		case WEST:
-			texture = textures->west;
-			tex_width = textures->west_width;
-			tex_height = textures->west_height;
-			wall_x = data->ray->ray_y;
-			break;
-		default:
-			tex_width = 0;
-			tex_height = 0;
+	case NORTH:
+		texture = textures->north;
+		tex_width = textures->north_width;
+		tex_height = textures->north_height;
+		break;
+	case SOUTH:
+		texture = textures->south;
+		tex_width = textures->south_width;
+		tex_height = textures->south_height;
+		break;
+	case EAST:
+		texture = textures->east;
+		tex_width = textures->east_width;
+		tex_height = textures->east_height;
+		break;
+	case WEST:
+		texture = textures->west;
+		tex_width = textures->west_width;
+		tex_height = textures->west_height;
+		break;
+	default:
+		tex_width = 0;
+		tex_height = 0;
 	}
+
 	if (texture == NULL)
 	{
 		while (y < data->ray->start_y)
@@ -200,33 +194,41 @@ void	draw_wall(t_data *data, float start_x, int i)
 
 	texture_addr = mlx_get_data_addr(texture, &bits_per_pixel, &line_length, &endian);
 
+	y = 0;
 	while (y < data->ray->start_y)
 	{
 		my_mlx_pixel_put(data, i, y, data->scene->ceiling_color);
 		y++;
 	}
+
 	y = data->ray->start_y;
 	while (y < data->ray->end_y)
 	{
-		double tex_y = (double)(y - data->ray->start_y) / (data->ray->end_y - data->ray->start_y);
+		double tex_x;
+		double tex_y = (double)(y - data->ray->start_y) / (double)(data->ray->end_y - data->ray->start_y);
 
-		tex_x = fmod(wall_x, BLOCK) / BLOCK;
+		// This is the core correction:
+		if (data->ray->side == 0)
+			tex_x = fmod(data->ray->ray_x + BLOCK , BLOCK) / BLOCK;
+		else
+			tex_x = fmod(data->ray->ray_y + BLOCK, BLOCK) / BLOCK ;
 
-		if (tex_x < 0)
-			tex_x += 1; // Ensure tex_x is within [0, 1)
-
-		int tex_x_int = (int)(tex_x * tex_width);
+		// Get X coordinate on the texture
+		int tex_x_int = (int)(tex_x * (double)tex_width);
+		if (tex_x_int < 0 || tex_x_int >= tex_width)
+			tex_x_int = 0;
 		int tex_y_int = (int)(tex_y * tex_height);
-
+		// Calculate dst using the CORRECT bits_per_pixel and line_length
 		char *dst = texture_addr + (tex_y_int * line_length + tex_x_int * (bits_per_pixel / 8));
 		color = *(unsigned int *)dst;
 		my_mlx_pixel_put(data, i, y, color);
 		y++;
 	}
+
+	y = data->ray->end_y;
 	while (y < HEIGHT)
 	{
 		my_mlx_pixel_put(data, i, y, data->scene->floor_color);
 		y++;
 	}
 }
-
