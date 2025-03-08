@@ -6,7 +6,7 @@
 /*   By: abamksa <abamksa@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 12:21:05 by a-ait-bo          #+#    #+#             */
-/*   Updated: 2025/03/07 14:40:01 by abamksa          ###   ########.fr       */
+/*   Updated: 2025/03/08 12:40:50 by abamksa          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -207,18 +207,15 @@ void	draw_wall(t_data *data, float start_x, int i)
 		double tex_x;
 		double tex_y = (double)(y - data->ray->start_y) / (double)(data->ray->end_y - data->ray->start_y);
 
-		// This is the core correction:
 		if (data->ray->side == 0)
 			tex_x = fmod(data->ray->ray_x + BLOCK , BLOCK) / BLOCK;
 		else
 			tex_x = fmod(data->ray->ray_y + BLOCK, BLOCK) / BLOCK ;
 
-		// Get X coordinate on the texture
 		int tex_x_int = (int)(tex_x * (double)tex_width);
 		if (tex_x_int < 0 || tex_x_int >= tex_width)
 			tex_x_int = 0;
 		int tex_y_int = (int)(tex_y * tex_height);
-		// Calculate dst using the CORRECT bits_per_pixel and line_length
 		char *dst = texture_addr + (tex_y_int * line_length + tex_x_int * (bits_per_pixel / 8));
 		color = *(unsigned int *)dst;
 		my_mlx_pixel_put(data, i, y, color);
