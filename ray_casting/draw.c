@@ -6,7 +6,7 @@
 /*   By: abamksa <abamksa@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 12:21:05 by a-ait-bo          #+#    #+#             */
-/*   Updated: 2025/03/08 12:40:50 by abamksa          ###   ########.fr       */
+/*   Updated: 2025/03/12 12:16:32 by abamksa          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,77 +72,97 @@ void	draw_map(t_data *data)
 	}
 }
 
-void	get_wall_height(t_data *data, float start_x, int i)
+void get_wall_height(t_data *data, float start_x, int i)
 {
-	t_ray	*ray;
-	float	cos_angle;
-	float	sin_angle;
-	float	step_size = 0.1;
+	t_ray *ray = data->ray;
+	float cos_angle = cosf(start_x);
+	float sin_angle = sinf(start_x);
 
-	ray = data->ray;
-	cos_angle = cos(start_x);
-	sin_angle = sin(start_x);
 	ray->ray_x = data->player->x;
 	ray->ray_y = data->player->y;
 	ray->wall = NONE;
 
-	while (ray->wall == NONE)
-	{
-		ray->ray_x -= cos_angle * step_size;
-		ray->ray_y -= sin_angle * step_size;
+	// DDA setup
+	int stepX, stepY;
+	float sideDistX, sideDistY;
+	float deltaDistX = fabsf(1.0f / cos_angle);
+	float deltaDistY = fabsf(1.0f / sin_angle);
 
-		if (is_wall(data->scene, ray->ray_x, ray->ray_y))
-		{
-			if (fabs(ray->ray_x - data->player->x) > fabs(ray->ray_y - data->player->y)) {
-				if (cos_angle > 0) {
-					ray->wall = WEST;
-				} else {
-					ray->wall = EAST;
-				}
-				ray->wall_x = ray->ray_y;
-			}
-			else {
-					if (sin_angle > 0) {
-					ray->wall = NORTH;
-				} else {
-					ray->wall = SOUTH;
-				}
-					ray->wall_x = ray->ray_x;
-			}
-			ray->hit_x = (int)ray->ray_x;
-			ray->hit_y = (int)ray->ray_y;
-			break;
+	if (cos_angle > 0) {
+		stepX = 1;
+		sideDistX = ((int)(ray->ray_x / BLOCK) + 1) * BLOCK - ray->ray_x;
+	} else {
+		stepX = -1;
+		sideDistX = ray->ray_x - (int)(ray->ray_x / BLOCK) * BLOCK;
+	}
+
+	if (sin_angle > 0) {
+		stepY = 1;
+		sideDistY = ((int)(ray->ray_y / BLOCK) + 1) * BLOCK - ray->ray_y;
+	} else {
+		stepY = -1;
+		sideDistY = ray->ray_y - (int)(ray->ray_y / BLOCK) * BLOCK;
+	}
+
+	// DDA loop
+	while (ray->wall == NONE) {
+		if (sideDistX < sideDistY) {
+			sideDistX += deltaDistX;
+			ray->ray_x += stepX;
+			ray->side = 0; // Vertical hit
+		} else {
+			sideDistY += deltaDistY;
+			ray->ray_y += stepY;
+			ray->side = 1; // Horizontal hit
 		}
 
-		if (fabs(ray->ray_x - data->player->x) > 1000 || fabs(ray->ray_y - data->player->y) > 1000) {
-			ray->wall = NONE;
+		if (is_wall(data->scene, ray->ray_x, ray->ray_y)) {
+			if (ray->side == 0) {
+				if (stepX > 0) ray->wall = WEST;
+				else ray->wall = EAST;
+			} else {
+				if (stepY > 0) ray->wall = NORTH;
+				else ray->wall = SOUTH;
+			}
+			break; 
+		}
+		if (fabs(ray->ray_x - data->player->x) > 1000 || 
+			fabs(ray->ray_y - data->player->y) > 1000) {
+			ray->wall = NONE; // Maximum ray distance or out of bounds
 			break;
 		}
 	}
-	ray->dist = distance(ray->ray_x - data->player->x, ray->ray_y - data->player->y);
-	ray->dist = ray->dist * cos(data->player->angle - start_x);
+
+
+	if (ray->side == 0) {
+		ray->dist = (ray->ray_x - data->player->x + (1 - stepX) / 2) / cos_angle;
+	} else {
+		ray->dist = (ray->ray_y - data->player->y + (1 - stepY) / 2) / sin_angle;
+	}
+
+
+	ray->dist *= cosf(data->player->angle - start_x);
 	ray->height = (BLOCK / ray->dist) * (HEIGHT / 2);
 	ray->start_y = (HEIGHT - ray->height) / 2;
 	ray->end_y = ray->height + ray->start_y;
-
-	if (ray->start_y < 0)
-		ray->start_y = 0;
-	if (ray->end_y > HEIGHT)
-		ray->end_y = HEIGHT;
+	// 	if (ray->start_y < 0)
+	// 		ray->start_y = 0;
+	// 	if (ray->end_y > HEIGHT)
+	// 		ray->end_y = HEIGHT;
 	draw_wall(data, start_x, i);
+
 }
 
-void	draw_wall(t_data *data, float start_x, int i)
+void draw_wall(t_data *data, float start_x, int i)
 {
-	int y;
+	int y = 0;
 	int color;
 	t_texture *textures = data->texture;
 	int tex_width, tex_height;
 	char *texture_addr;
 	int bits_per_pixel, line_length, endian;
 
-	y = 0;
-	void *texture = NULL;
+	void *texture = NULL; // Initialize
 	switch (data->ray->wall)
 	{
 	case NORTH:
@@ -194,37 +214,50 @@ void	draw_wall(t_data *data, float start_x, int i)
 
 	texture_addr = mlx_get_data_addr(texture, &bits_per_pixel, &line_length, &endian);
 
-	y = 0;
-	while (y < data->ray->start_y)
-	{
+	// Ceiling
+	while (y < data->ray->start_y) {
 		my_mlx_pixel_put(data, i, y, data->scene->ceiling_color);
 		y++;
 	}
 
-	y = data->ray->start_y;
-	while (y < data->ray->end_y)
-	{
-		double tex_x;
-		double tex_y = (double)(y - data->ray->start_y) / (double)(data->ray->end_y - data->ray->start_y);
+	// Wall
+	for (y = data->ray->start_y; y < data->ray->end_y; ++y) {
+		double tex_y = (double)(y - data->ray->start_y) * tex_height / (double)(data->ray->end_y - data->ray->start_y);
+		int tex_y_int = (int)tex_y;
+		if (tex_y_int >= tex_height) {
+			tex_y_int = tex_height - 1; // VERY IMPORTANT: Prevents out-of-bounds access
+		}
 
-		if (data->ray->side == 0)
-			tex_x = fmod(data->ray->ray_x + BLOCK , BLOCK) / BLOCK;
-		else
-			tex_x = fmod(data->ray->ray_y + BLOCK, BLOCK) / BLOCK ;
 
-		int tex_x_int = (int)(tex_x * (double)tex_width);
-		if (tex_x_int < 0 || tex_x_int >= tex_width)
+		double wallX;
+		if (data->ray->side == 0) {
+			wallX = data->player->y + data->ray->dist * sinf(start_x);
+		} else {
+			wallX = data->player->x + data->ray->dist * cosf(start_x);
+		}
+
+
+		wallX -= floor(wallX);
+
+		int tex_x_int = (int)(wallX * tex_width);
+
+
+		// VERY IMPORTANT: Bounds checking
+		if (tex_x_int < 0) {
 			tex_x_int = 0;
-		int tex_y_int = (int)(tex_y * tex_height);
+		}
+		if (tex_x_int >= tex_width) {
+			tex_x_int = tex_width - 1;
+		}
+
 		char *dst = texture_addr + (tex_y_int * line_length + tex_x_int * (bits_per_pixel / 8));
-		color = *(unsigned int *)dst;
+		color = *(unsigned int *)dst;  // corrected
 		my_mlx_pixel_put(data, i, y, color);
-		y++;
 	}
 
-	y = data->ray->end_y;
-	while (y < HEIGHT)
-	{
+	// Floor
+	y = data->ray->end_y;  // correct y value for floor rendering
+	while (y < HEIGHT) {
 		my_mlx_pixel_put(data, i, y, data->scene->floor_color);
 		y++;
 	}
