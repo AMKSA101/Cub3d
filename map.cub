@@ -1,16 +1,16 @@
 F +220,100,0
 C 225,30,0
 
-NO ./Textures/aghrab_texture.xpm
-SO ./Textures/aghrab_texture.xpm
-WE ./Textures/aghrab_texture.xpm
-EA ./Textures/aghrab_texture.xpm
+NO ./Textures/cat.xpm
+SO ./Textures/cat.xpm
+WE ./Textures/cat.xpm
+EA ./Textures/cat.xpm
 
 
 111111111111111
 111111000111111
 111110000011111
-1111000S0001111
+1111000N0001111
 111000000000111
 110000000000011
 100001111100001

@@ -52,7 +52,7 @@ void	move_player(t_scene *img, t_player *player)
 {
 	float	angle_speed;
 
-	angle_speed = 0.01;
+	angle_speed = 0.05;
 	player->speed = 1;
 	player->cos_angle = cos(player->angle);
 	player->sin_angle = sin(player->angle);

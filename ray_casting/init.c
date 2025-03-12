@@ -46,6 +46,11 @@ void	init_player_position(t_player *player, t_scene *img)
 				player->x = j * BLOCK;
 				player->y = i * BLOCK;
 			}
+			if (map[i][j] == 'N')
+			{
+				player->x = j * BLOCK;
+				player->y = i * BLOCK;
+			}
 			j++;
 		}
 		i++;

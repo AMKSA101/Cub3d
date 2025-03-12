@@ -125,25 +125,30 @@ void	get_wall_height(t_data *data, float start_x, int i)
 	ray->start_y = (HEIGHT - ray->height) / 2;
 	ray->end_y = ray->height + ray->start_y;
 
-	if (ray->start_y < 0)
-		ray->start_y = 0;
-	if (ray->end_y > HEIGHT)
-		ray->end_y = HEIGHT;
+	// if (ray->start_y < 0)
+	// 	ray->start_y = 0;
+	// if (ray->end_y > HEIGHT)
+	// 	ray->end_y = HEIGHT;
 	draw_wall(data, start_x, i);
 }
 
 void	draw_wall(t_data *data, float start_x, int i)
 {
-	int y;
-	int color;
-	t_texture *textures = data->texture;
-	int tex_width, tex_height;
-	char *texture_addr;
-	int bits_per_pixel, line_length, endian;
+	t_ray		*ray;
+	t_texture	*textures;
+	void		*texture;
+	int			tex_width, tex_height;
+	char		*texture_addr;
+	int			bits_per_pixel, line_length, endian;
+	int			y, color;
+	float		wall_hit, tex_x;
+	int			tex_x_int, tex_y_int;
 
-	y = 0;
-	void *texture = NULL;
-	switch (data->ray->wall)
+	ray = data->ray;
+	textures = data->texture;
+	texture = NULL;
+
+	switch (ray->wall)
 	{
 	case NORTH:
 		texture = textures->north;
@@ -169,7 +174,6 @@ void	draw_wall(t_data *data, float start_x, int i)
 		tex_width = 0;
 		tex_height = 0;
 	}
-
 	if (texture == NULL)
 	{
 		while (y < data->ray->start_y)
@@ -194,38 +198,57 @@ void	draw_wall(t_data *data, float start_x, int i)
 
 	texture_addr = mlx_get_data_addr(texture, &bits_per_pixel, &line_length, &endian);
 
+	// Determine where the ray hit the wall to calculate texture X coordinate
+	if (ray->wall == NORTH || ray->wall == SOUTH)
+	{
+		wall_hit = ray->ray_x / (float)BLOCK;
+		if (sin(start_x) <= 0)
+			ray->side = 0;  // Facing up
+		else
+			ray->side = 1;  // Facing down
+	}
+	else
+	{
+		wall_hit = ray->ray_y / (float)BLOCK;
+		if (cos(start_x) <= 0)
+			ray->side = 2;  // Facing left
+		else
+			ray->side = 3;  // Facing right
+	}
+
+	wall_hit -= floor(wall_hit);  // Get fractional part
+	tex_x = wall_hit * tex_width;
+	tex_x_int = (int)tex_x;
+	if (tex_x_int < 0)
+		tex_x_int = 0;
+	else if (tex_x_int >= tex_width)
+		tex_x_int = tex_width - 1;
+
 	y = 0;
-	while (y < data->ray->start_y)
+	while (y < ray->start_y)
 	{
 		my_mlx_pixel_put(data, i, y, data->scene->ceiling_color);
 		y++;
 	}
-
-	y = data->ray->start_y;
-	while (y < data->ray->end_y)
+	y = ray->start_y;
+	while (y < ray->end_y)
 	{
-		double tex_x;
-		double tex_y = (double)(y - data->ray->start_y) / (double)(data->ray->end_y - data->ray->start_y);
+		float tex_y = (float)(y - ray->start_y) / (float)(ray->end_y - ray->start_y);
+		tex_y_int = (int)(tex_y * tex_height);
+		if (tex_y_int < 0) tex_y_int = 0;
+		else if (tex_y_int >= tex_height) tex_y_int = tex_height - 1;
 
-		if (data->ray->side == 0)
-			tex_x = fmod(data->ray->ray_x + BLOCK , BLOCK) / BLOCK;
-		else
-			tex_x = fmod(data->ray->ray_y + BLOCK, BLOCK) / BLOCK ;
-
-		int tex_x_int = (int)(tex_x * (double)tex_width);
-		if (tex_x_int < 0 || tex_x_int >= tex_width)
-			tex_x_int = 0;
-		int tex_y_int = (int)(tex_y * tex_height);
 		char *dst = texture_addr + (tex_y_int * line_length + tex_x_int * (bits_per_pixel / 8));
 		color = *(unsigned int *)dst;
 		my_mlx_pixel_put(data, i, y, color);
 		y++;
 	}
 
-	y = data->ray->end_y;
+	y = ray->end_y;
 	while (y < HEIGHT)
 	{
 		my_mlx_pixel_put(data, i, y, data->scene->floor_color);
 		y++;
 	}
 }
+
