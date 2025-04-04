@@ -223,7 +223,6 @@ void	draw_wall(t_data *data, float start_x, int i)
 		tex_width = 0;
 		tex_height = 0;
 	}
-
 	if (texture == NULL)
 	{
 		while (y < data->ray->start_y)
