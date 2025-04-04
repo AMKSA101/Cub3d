@@ -6,7 +6,7 @@
 /*   By: abamksa <abamksa@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 12:21:05 by a-ait-bo          #+#    #+#             */
-/*   Updated: 2025/03/19 14:38:00 by abamksa          ###   ########.fr       */
+/*   Updated: 2025/04/04 11:23:57 by abamksa          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,6 +78,8 @@ void	get_wall_height(t_data *data, float start_x, int i)
 	float	cos_angle;
 	float	sin_angle;
 	float	step_size = 0.1;
+	int     map_x, map_y;
+	float   exact_x, exact_y;
 
 	ray = data->ray;
 	cos_angle = cos(start_x);
@@ -91,26 +93,68 @@ void	get_wall_height(t_data *data, float start_x, int i)
 		ray->ray_x -= cos_angle * step_size;
 		ray->ray_y -= sin_angle * step_size;
 
-		if (is_wall(data->scene, ray->ray_x, ray->ray_y))
+		map_x = (int)(ray->ray_x / BLOCK);
+		map_y = (int)(ray->ray_y / BLOCK);
+
+		if (map_x < 0 || map_y < 0 || 
+			map_x >= data->scene->map_width || 
+			map_y >= data->scene->map_height ||
+			data->scene->map[map_y][map_x] == '1')
 		{
-			if (fabs(ray->ray_x - data->player->x) > fabs(ray->ray_y - data->player->y)) {
-				if (cos_angle > 0) {
-					ray->wall = WEST;
-				} else {
-					ray->wall = EAST;
-				}
-				ray->wall_x = ray->ray_y;
+			// Found a wall, determine which face we hit
+			// First, get the exact hit position
+			exact_x = fmod(ray->ray_x, BLOCK);
+			exact_y = fmod(ray->ray_y, BLOCK);
+			
+			// Normalize to [0, BLOCK] range
+			if (exact_x < 0) exact_x += BLOCK;
+			if (exact_y < 0) exact_y += BLOCK;
+			
+			// Determine if hit was on vertical or horizontal wall face
+			// We do this by seeing which side of the block we're closest to
+			if (exact_x < 1.0) {
+				// Hit east face of block
+				ray->wall = EAST;
+				ray->wall_x = exact_y;
+				ray->side = 0;
+			}
+			else if (exact_x > BLOCK - 1.0) {
+				// Hit west face of block
+				ray->wall = WEST;
+				ray->wall_x = exact_y;
+				ray->side = 0;
+			}
+			else if (exact_y < 1.0) {
+				// Hit south face of block
+				ray->wall = SOUTH;
+				ray->wall_x = exact_x;
+				ray->side = 1;
+			}
+			else if (exact_y > BLOCK - 1.0) {
+				// Hit north face of block
+				ray->wall = NORTH;
+				ray->wall_x = exact_x;
+				ray->side = 1;
 			}
 			else {
-					if (sin_angle > 0) {
-					ray->wall = NORTH;
+				// Inside a block - should not happen with small enough step_size
+				// But determine direction based on ray direction
+				if (fabs(cos_angle) > fabs(sin_angle)) {
+					// Moving mostly horizontally
+					ray->wall = (cos_angle > 0) ? WEST : EAST;
+					ray->wall_x = exact_y;
+					ray->side = 0;
 				} else {
-					ray->wall = SOUTH;
+					// Moving mostly vertically
+					ray->wall = (sin_angle > 0) ? NORTH : SOUTH; 
+					ray->wall_x = exact_x;
+					ray->side = 1;
 				}
-					ray->wall_x = ray->ray_x;
 			}
-			ray->hit_x = (int)ray->ray_x;
-			ray->hit_y = (int)ray->ray_y;
+			
+			// Record hit position
+			ray->hit_x = map_x;
+			ray->hit_y = map_y;
 			break;
 		}
 
@@ -119,6 +163,8 @@ void	get_wall_height(t_data *data, float start_x, int i)
 			break;
 		}
 	}
+
+	// Calculate perpendicular distance to avoid fisheye effect
 	ray->dist = distance(ray->ray_x - data->player->x, ray->ray_y - data->player->y);
 	ray->dist = ray->dist * cos(data->player->angle - start_x);
 	ray->height = (BLOCK / ray->dist) * (HEIGHT / 2);
@@ -130,6 +176,14 @@ void	get_wall_height(t_data *data, float start_x, int i)
 	if (ray->end_y > HEIGHT)
 		ray->end_y = HEIGHT;
 	draw_wall(data, start_x, i);
+	
+	// Display debug info for center ray
+	if (i == WIDTH / 2) {
+		char debug_str[256];
+		sprintf(debug_str, "Hit: %d,%d Wall:%d Side:%d WX:%.2f", 
+				ray->hit_x, ray->hit_y, ray->wall, ray->side, ray->wall_x);
+		mlx_string_put(data->mlx->mlx_ptr, data->mlx->win_ptr, 10, 20, 0xFFFFFF, debug_str);
+	}
 }
 
 void	draw_wall(t_data *data, float start_x, int i)
@@ -194,6 +248,7 @@ void	draw_wall(t_data *data, float start_x, int i)
 
 	texture_addr = mlx_get_data_addr(texture, &bits_per_pixel, &line_length, &endian);
 
+	// Draw ceiling
 	y = 0;
 	while (y < data->ray->start_y)
 	{
@@ -201,31 +256,63 @@ void	draw_wall(t_data *data, float start_x, int i)
 		y++;
 	}
 
+	// Draw textured wall
 	y = data->ray->start_y;
 	while (y < data->ray->end_y)
 	{
-		double tex_x;
+		// Calculate texture Y coordinate - this maps the vertical position on wall to texture
 		double tex_y = (double)(y - data->ray->start_y) / (double)(data->ray->end_y - data->ray->start_y);
-
-		if (data->ray->side == 0)
-			tex_x = fmod(data->ray->ray_x + BLOCK , BLOCK) / BLOCK;
-		else
-			tex_x = fmod(data->ray->ray_y + BLOCK, BLOCK) / BLOCK ;
-
-		int tex_x_int = (int)(tex_x * (double)tex_width);
-		if (tex_x_int < 0 || tex_x_int >= tex_width)
-			tex_x_int = 0;
+		
+		// Calculate texture X coordinate - this uses the hit position on the wall face
+		double tex_x = data->ray->wall_x / BLOCK;
+		
+		// Depending on the wall face, we might need to flip the texture coordinate
+		// This ensures textures appear correctly oriented
+		if (data->ray->wall == WEST || data->ray->wall == SOUTH)
+			tex_x = 1.0 - tex_x;
+		
+		// Ensure texture coordinates are in valid range
+		tex_x = fmax(0.0, fmin(0.999, tex_x));
+		tex_y = fmax(0.0, fmin(0.999, tex_y));
+		
+		// Convert to pixel coordinates in texture
+		int tex_x_int = (int)(tex_x * tex_width);
 		int tex_y_int = (int)(tex_y * tex_height);
+		
+		// Safety checks to prevent buffer overflow
+		if (tex_x_int < 0) tex_x_int = 0;
+		if (tex_y_int < 0) tex_y_int = 0;
+		if (tex_x_int >= tex_width) tex_x_int = tex_width - 1;
+		if (tex_y_int >= tex_height) tex_y_int = tex_height - 1;
+		
+		// Get pixel color from texture
 		char *dst = texture_addr + (tex_y_int * line_length + tex_x_int * (bits_per_pixel / 8));
 		color = *(unsigned int *)dst;
+		
+		// Draw pixel on screen
 		my_mlx_pixel_put(data, i, y, color);
 		y++;
 	}
 
+	// Draw floor
 	y = data->ray->end_y;
 	while (y < HEIGHT)
 	{
 		my_mlx_pixel_put(data, i, y, data->scene->floor_color);
 		y++;
 	}
+}
+
+// Debug function to show ray information
+void debug_ray_info(t_data *data, int i)
+{
+    t_ray *ray = data->ray;
+    char debug_str[256];
+    
+    // Only print for a specific column to avoid flooding the console
+    if (i == WIDTH / 2) {
+        sprintf(debug_str, "Ray %d: Wall=%d, Side=%d, WallX=%.2f, Dist=%.2f",
+                i, ray->wall, ray->side, ray->wall_x, ray->dist);
+        mlx_string_put(data->mlx->mlx_ptr, data->mlx->win_ptr, 10, 20, 0xFFFFFF, debug_str);
+    }
 }
