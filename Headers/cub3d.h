@@ -6,63 +6,39 @@
 /*   By: abamksa <abamksa@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/24 10:56:12 by abamksa           #+#    #+#             */
-/*   Updated: 2025/02/15 11:19:29 by abamksa          ###   ########.fr       */
+/*   Updated: 2025/04/04 11:18:04 by abamksa          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CUB3D_H
 #define CUB3D_H
 
-// # include "../minilibx-linux/mlx.h"
-// # include "../libft/libft.h"
-// # include "AnsiEscCodes.h"
-// // # include <X11/keysym.h>
-// # include <stdbool.h>
-// # include <unistd.h>
-// # include <stdlib.h>
-// # include <string.h>
-// # include <limits.h>
-// # include <stdio.h>
-// # include <X11/X.h>
-// # include <fcntl.h>
-// # include <errno.h>
-// # include <math.h>
-
-// # define BUFFER_SIZE 1024
 # include "../minilibx-linux/mlx.h"
 # include "../libft/libft.h"
-// # include "../ft_get_next_line/get_next_line.h"
 # include "AnsiEscCodes.h"
-// # include <X11/keysym.h>
+# include <X11/keysym.h>
 # include <stdbool.h>
 # include <unistd.h>
 # include <stdlib.h>
 # include <string.h>
 # include <limits.h>
 # include <stdio.h>
-// # include <X11/X.h>
+# include <X11/X.h>
 # include <fcntl.h>
 # include <errno.h>
 # include <math.h>
 
-
-
-
 # define BUFFER_SIZE 1024
-
-# define WIDTH  1080
-# define HEIGHT  800
+# define PI 3.14159265359
+# define RIGHT 65361
+# define LEFT 65363
+# define HEIGHT 800
+# define WIDTH 1080
 # define BLOCK 30
-
 # define W 119
 # define S 115
 # define D 100
 # define A 97
-# define LEFT 65363
-# define RIGHT 65361
-
-# define PI 3.14159265359
-
 
 typedef enum e_wall
 {
@@ -70,7 +46,7 @@ typedef enum e_wall
 	NORTH,
 	SOUTH,
 	WEST,
-	EAST,
+	EAST
 } t_wall;
 
 typedef struct s_texture
@@ -119,8 +95,8 @@ typedef struct s_scene
 	int floor[3];
 	int ceiling[3];
 	char **map;
-	size_t map_width; // ft_strlen(map[i])
-	size_t map_height; // i
+	size_t map_width;
+	size_t map_height;
 	int		endian;
 	int		line_length;
 	int		bits_per_pixel;
@@ -133,12 +109,8 @@ typedef struct s_scene
 	int floor_color;
 	int		ceiling_color;
 	char	*data;
-	// char **map;
-	// size_t map_width;
-	// size_t map_height;
+
 	char player_start_dir;
-	// double player_start_x;
-	// double player_start_y;
 } t_scene;
 
 

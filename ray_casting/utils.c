@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: a-ait-bo <a-ait-bo@student.42.fr>          +#+  +:+       +#+        */
+/*   By: abamksa <abamksa@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/30 20:13:12 by a-ait-bo          #+#    #+#             */
-/*   Updated: 2025/02/06 12:38:22 by a-ait-bo         ###   ########.fr       */
+/*   Updated: 2025/04/04 11:18:04 by abamksa          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,8 @@ void	get_start_x(t_data *data, t_player *player, t_mlx *mlx, t_scene *scene)
 
 	i = 0;
 	start_x = player->angle - PI / 6;
-	fr = PI / 3 / WIDTH;
+
+	fr = PI / 3.0f / (float)WIDTH;
 	while (i < WIDTH)
 	{
 		get_wall_height(data, start_x, i);

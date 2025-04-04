@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   moves.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: a-ait-bo <a-ait-bo@student.42.fr>          +#+  +:+       +#+        */
+/*   By: abamksa <abamksa@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 11:36:22 by a-ait-bo          #+#    #+#             */
-/*   Updated: 2025/02/06 11:37:58 by a-ait-bo         ###   ########.fr       */
+/*   Updated: 2025/03/07 11:14:53 by abamksa          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,8 @@ int	key_pres(int keycode, t_data *data)
 		data->player->left_rotate = true;
 	if (keycode == RIGHT)
 		data->player->right_rotate = true;
+	if (keycode == 65307)
+		exit(0);
 	return (0);
 }
 

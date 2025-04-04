@@ -6,25 +6,24 @@
 /*   By: abamksa <abamksa@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/24 11:18:49 by abamksa           #+#    #+#             */
-/*   Updated: 2025/02/15 11:33:33 by abamksa          ###   ########.fr       */
+/*   Updated: 2025/04/04 11:18:04 by abamksa          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../Headers/cub3d.h"
 
-t_texture *load_texture(t_data *data, int *width, int *height, char *path)
+void *load_texture(t_data *data, int *width, int *height, char *path)
 {
-
-	t_texture *texture = mlx_xpm_file_to_image(data->mlx->mlx_ptr, path, width, height);
+	void *texture = mlx_xpm_file_to_image(data->mlx->mlx_ptr, path, width, height);
 	if (!texture)
 	{
 		free_scene(data->scene);
+		fprintf(stderr, "Error loading texture from path: %s\n", path); // Print the path
 		print_error("Error loading texture", __FILE__, __LINE__);
 		exit(-1);
 	}
 	return texture;
 }
-
 t_texture *get_textures(t_data *data)
 {
 	t_texture *textures = (t_texture *)malloc(sizeof(t_texture));
@@ -33,7 +32,7 @@ t_texture *get_textures(t_data *data)
 	if (!textures)
 	{
 		free_scene(data->scene);
-		print_error("Error allocating memory", __FILE__, __LINE__);
+		print_error("Error allocating memory for textures", __FILE__, __LINE__);
 		exit(-1);
 	}
 	textures->north = load_texture(data, &width, &height, data->scene->north_texture);
@@ -50,16 +49,14 @@ t_texture *get_textures(t_data *data)
 	textures->west_height = height;
 	return textures;
 }
-
-int	main(int ac, char **av)
+int main(int ac, char **av)
 {
 	t_data data;
 	t_scene scene;
-	t_mlx	mlx;
+	t_mlx   mlx;
 	t_player player;
-	t_ray	ray;
+	t_ray   ray;
 	t_texture *texture;
-
 	ft_memset(&data, 0, sizeof(t_data));
 	ft_memset(&scene, 0, sizeof(t_scene));
 	ft_memset(&mlx, 0, sizeof(t_mlx));
@@ -72,17 +69,17 @@ int	main(int ac, char **av)
 	{
 		if (ft_parse(av[1], &data) == -1)
 			return(free_scene(&scene), -1);
-		else {
+		else
+		{
 			init_game(&data);
 			data.texture = get_textures(&data);
-			mlx_hook(mlx.win_ptr, 2, 1L<<0, key_pres, &data);
-			mlx_hook(mlx.win_ptr, 3, 1L<<1, key_release, &data);
+			mlx_hook(mlx.win_ptr, 2, 1L << 0, key_pres, &data);
+			mlx_hook(mlx.win_ptr, 3, 1L << 1, key_release, &data);
 			mlx_loop_hook(mlx.mlx_ptr, draw_loop, &data);
 			mlx_loop(mlx.mlx_ptr);
 		}
 		free_scene(&scene);
 	}
 	else
-		return(print_error("Invalid arguments", __FILE__, __LINE__), -1);
-	return (0);
+		return(1);
 }
