@@ -6,7 +6,7 @@
 /*   By: abamksa <abamksa@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 12:21:05 by a-ait-bo          #+#    #+#             */
-/*   Updated: 2025/04/04 11:23:57 by abamksa          ###   ########.fr       */
+/*   Updated: 2025/04/07 10:02:48 by abamksa          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,106 +75,118 @@ void	draw_map(t_data *data)
 void	get_wall_height(t_data *data, float start_x, int i)
 {
 	t_ray	*ray;
-	float	cos_angle;
-	float	sin_angle;
-	float	step_size = 0.1;
-	int     map_x, map_y;
-	float   exact_x, exact_y;
+	float	ray_dir_x, ray_dir_y;
+	int		map_x, map_y;
+	double	side_dist_x, side_dist_y;
+	double	delta_dist_x, delta_dist_y;
+	int		step_x, step_y;
+	int		hit = 0;
+	int		side;
 
 	ray = data->ray;
-	cos_angle = cos(start_x);
-	sin_angle = sin(start_x);
-	ray->ray_x = data->player->x;
-	ray->ray_y = data->player->y;
-	ray->wall = NONE;
-
-	while (ray->wall == NONE)
+	ray_dir_x = cos(start_x);
+	ray_dir_y = sin(start_x);
+	
+	// Starting position
+	map_x = (int)(data->player->x / BLOCK);
+	map_y = (int)(data->player->y / BLOCK);
+	
+	// Calculate delta distances
+	delta_dist_x = (ray_dir_x == 0) ? 1e30 : fabs(1.0 / ray_dir_x);
+	delta_dist_y = (ray_dir_y == 0) ? 1e30 : fabs(1.0 / ray_dir_y);
+	
+	// Calculate step and initial side_dist
+	if (ray_dir_x < 0)
 	{
-		ray->ray_x -= cos_angle * step_size;
-		ray->ray_y -= sin_angle * step_size;
-
-		map_x = (int)(ray->ray_x / BLOCK);
-		map_y = (int)(ray->ray_y / BLOCK);
-
+		step_x = -1;
+		side_dist_x = (data->player->x / BLOCK - map_x) * delta_dist_x;
+	}
+	else
+	{
+		step_x = 1;
+		side_dist_x = (map_x + 1.0 - data->player->x / BLOCK) * delta_dist_x;
+	}
+	if (ray_dir_y < 0)
+	{
+		step_y = -1;
+		side_dist_y = (data->player->y / BLOCK - map_y) * delta_dist_y;
+	}
+	else
+	{
+		step_y = 1;
+		side_dist_y = (map_y + 1.0 - data->player->y / BLOCK) * delta_dist_y;
+	}
+	
+	// Perform DDA
+	while (hit == 0)
+	{
+		// Jump to next map square
+		if (side_dist_x < side_dist_y)
+		{
+			side_dist_x += delta_dist_x;
+			map_x += step_x;
+			side = 0; // X side hit
+		}
+		else
+		{
+			side_dist_y += delta_dist_y;
+			map_y += step_y;
+			side = 1; // Y side hit
+		}
+		
+		// Check if ray has hit a wall
 		if (map_x < 0 || map_y < 0 || 
 			map_x >= data->scene->map_width || 
 			map_y >= data->scene->map_height ||
 			data->scene->map[map_y][map_x] == '1')
-		{
-			// Found a wall, determine which face we hit
-			// First, get the exact hit position
-			exact_x = fmod(ray->ray_x, BLOCK);
-			exact_y = fmod(ray->ray_y, BLOCK);
-			
-			// Normalize to [0, BLOCK] range
-			if (exact_x < 0) exact_x += BLOCK;
-			if (exact_y < 0) exact_y += BLOCK;
-			
-			// Determine if hit was on vertical or horizontal wall face
-			// We do this by seeing which side of the block we're closest to
-			if (exact_x < 1.0) {
-				// Hit east face of block
-				ray->wall = EAST;
-				ray->wall_x = exact_y;
-				ray->side = 0;
-			}
-			else if (exact_x > BLOCK - 1.0) {
-				// Hit west face of block
-				ray->wall = WEST;
-				ray->wall_x = exact_y;
-				ray->side = 0;
-			}
-			else if (exact_y < 1.0) {
-				// Hit south face of block
-				ray->wall = SOUTH;
-				ray->wall_x = exact_x;
-				ray->side = 1;
-			}
-			else if (exact_y > BLOCK - 1.0) {
-				// Hit north face of block
-				ray->wall = NORTH;
-				ray->wall_x = exact_x;
-				ray->side = 1;
-			}
-			else {
-				// Inside a block - should not happen with small enough step_size
-				// But determine direction based on ray direction
-				if (fabs(cos_angle) > fabs(sin_angle)) {
-					// Moving mostly horizontally
-					ray->wall = (cos_angle > 0) ? WEST : EAST;
-					ray->wall_x = exact_y;
-					ray->side = 0;
-				} else {
-					// Moving mostly vertically
-					ray->wall = (sin_angle > 0) ? NORTH : SOUTH; 
-					ray->wall_x = exact_x;
-					ray->side = 1;
-				}
-			}
-			
-			// Record hit position
-			ray->hit_x = map_x;
-			ray->hit_y = map_y;
-			break;
-		}
-
-		if (fabs(ray->ray_x - data->player->x) > 1000 || fabs(ray->ray_y - data->player->y) > 1000) {
-			ray->wall = NONE;
-			break;
-		}
+			hit = 1;
 	}
-
-	// Calculate perpendicular distance to avoid fisheye effect
-	ray->dist = distance(ray->ray_x - data->player->x, ray->ray_y - data->player->y);
-	ray->dist = ray->dist * cos(data->player->angle - start_x);
+	
+	// Calculate distance to the wall
+	double perp_wall_dist;
+	if (side == 0)
+		perp_wall_dist = (side_dist_x - delta_dist_x);
+	else
+		perp_wall_dist = (side_dist_y - delta_dist_y);
+	
+	// Calculate wall face and wall_x (texture coordinate)
+	if (side == 0) // X side
+	{
+		ray->wall = (step_x > 0) ? WEST : EAST;
+		// Calculate exact hit position on the wall
+		ray->wall_x = data->player->y / BLOCK + perp_wall_dist * ray_dir_y;
+		ray->wall_x = fmod(ray->wall_x, 1.0);
+	}
+	else // Y side
+	{
+		ray->wall = (step_y > 0) ? NORTH : SOUTH;
+		// Calculate exact hit position on the wall
+		ray->wall_x = data->player->x / BLOCK + perp_wall_dist * ray_dir_x;
+		ray->wall_x = fmod(ray->wall_x, 1.0);
+	}
+	
+	// Ensure wall_x is positive
+	if (ray->wall_x < 0)
+		ray->wall_x += 1.0;
+	
+	// Save hit position for debugging
+	ray->hit_x = map_x;
+	ray->hit_y = map_y;
+	ray->side = side;
+	
+	// Calculate wall height
+	ray->dist = perp_wall_dist * BLOCK;
 	ray->height = (BLOCK / ray->dist) * (HEIGHT / 2);
 	ray->start_y = (HEIGHT - ray->height) / 2;
 	ray->end_y = ray->height + ray->start_y;
-
+	
+	// Clamp values
 	if (ray->start_y < 0)
 		ray->start_y = 0;
 	if (ray->end_y > HEIGHT)
 		ray->end_y = HEIGHT;
+	
+	// Draw the wall
 	draw_wall(data, start_x, i);
 	
 	// Display debug info for center ray
@@ -223,6 +235,7 @@ void	draw_wall(t_data *data, float start_x, int i)
 		tex_width = 0;
 		tex_height = 0;
 	}
+
 	if (texture == NULL)
 	{
 		while (y < data->ray->start_y)
@@ -259,14 +272,13 @@ void	draw_wall(t_data *data, float start_x, int i)
 	y = data->ray->start_y;
 	while (y < data->ray->end_y)
 	{
-		// Calculate texture Y coordinate - this maps the vertical position on wall to texture
+		// Calculate texture Y coordinate
 		double tex_y = (double)(y - data->ray->start_y) / (double)(data->ray->end_y - data->ray->start_y);
 		
-		// Calculate texture X coordinate - this uses the hit position on the wall face
-		double tex_x = data->ray->wall_x / BLOCK;
+		// Get texture X from ray wall_x (already normalized 0-1)
+		double tex_x = data->ray->wall_x;
 		
-		// Depending on the wall face, we might need to flip the texture coordinate
-		// This ensures textures appear correctly oriented
+		// Flip textures if needed based on wall orientation
 		if (data->ray->wall == WEST || data->ray->wall == SOUTH)
 			tex_x = 1.0 - tex_x;
 		
