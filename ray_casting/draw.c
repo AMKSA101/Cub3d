@@ -176,6 +176,7 @@ void	get_wall_height(t_data *data, float start_x, int i)
 	
 	// Calculate wall height
 	ray->dist = perp_wall_dist * BLOCK;
+	ray->dist = ray->dist * cos(data->player->angle - start_x);
 	ray->height = (BLOCK / ray->dist) * (HEIGHT / 2);
 	ray->start_y = (HEIGHT - ray->height) / 2;
 	ray->end_y = ray->height + ray->start_y;

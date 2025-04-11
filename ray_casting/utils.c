@@ -12,22 +12,16 @@
 
 #include "../Headers/cub3d.h"
 
-int is_wall(t_scene *img, float x, float y)
+int	check_wall(t_scene *img,	char    **map, float x, float y)
 {
-	char    **map;
-	int     map_x;
-	int     map_y;
 	float	offset;
+	int		map_x;
+	int		map_y;
 
-	map = img->map;
 	map_y = (int)(y / BLOCK);
 	map_x = (int)(x / BLOCK);
-	if (!map || map_y < 0 || map_x < 0 || 
-		map_y >= img->map_height || map_x >= img->map_width)
-		return (1);
-	if (map[map_y][map_x] == '1')
-		return (1);
-	offset = 0.1;
+	offset = 13;
+	// offset = 0.1;
 	map_x = (int)((x + offset) / BLOCK);
 	if (map_x < img->map_width && map[map_y][map_x] == '1')
 		if (x + offset >= map_x * BLOCK && x + offset < (map_x + 1) * BLOCK)
@@ -47,6 +41,24 @@ int is_wall(t_scene *img, float x, float y)
 			return (1);
 	return (0);
 }
+
+int is_wall(t_scene *img, float x, float y)
+{
+	char	**map;
+	int		map_x;
+	int		map_y;
+
+	map = img->map;
+	map_y = (int)(y / BLOCK);
+	map_x = (int)(x / BLOCK);
+	if (!map || map_y < 0 || map_x < 0 || 
+		map_y >= img->map_height || map_x >= img->map_width)
+		return (1);
+	if (map[map_y][map_x] == '1')
+		return (1);
+	return (check_wall(img, map, x, y));
+}
+
 void	clear_image(t_data *data)
 {
 	int	y;

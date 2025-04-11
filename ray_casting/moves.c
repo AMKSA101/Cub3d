@@ -12,15 +12,21 @@
 
 #include "../Headers/cub3d.h"
 
+int	destroynotify(t_data *data)
+{
+	exit (0);
+	return (0);
+}
+
 int	key_pres(int keycode, t_data *data)
 {
 	if (keycode == W)
-		data->player->key_up = true;
-	if (keycode == S)
 		data->player->key_down = true;
-	if (keycode == A)
-		data->player->key_left = true;
+	if (keycode == S)
+		data->player->key_up = true;
 	if (keycode == D)
+		data->player->key_left = true;
+	if (keycode == A)
 		data->player->key_right = true;
 	if (keycode == LEFT)
 		data->player->left_rotate = true;
@@ -34,12 +40,12 @@ int	key_pres(int keycode, t_data *data)
 int	key_release(int keycode, t_data *data)
 {
 	if (keycode == W)
-		data->player->key_up = false;
-	if (keycode == S)
 		data->player->key_down = false;
-	if (keycode == A)
-		data->player->key_left = false;
+	if (keycode == S)
+		data->player->key_up = false;
 	if (keycode == D)
+		data->player->key_left = false;
+	if (keycode == A)
 		data->player->key_right = false;
 	if (keycode == LEFT)
 		data->player->left_rotate = false;

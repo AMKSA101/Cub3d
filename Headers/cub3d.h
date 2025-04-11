@@ -171,6 +171,7 @@ int		key_pres(int keycode, t_data *data);
 int		key_release(int keycode, t_data *data);
 void	move_player(t_scene *img, t_player *player);
 void	direction_of_player(t_scene *img, t_player *player);
+int		destroynotify(t_data *data);
 /*------*/
 
 /*utils*/

@@ -75,6 +75,7 @@ int main(int ac, char **av)
 			data.texture = get_textures(&data);
 			mlx_hook(mlx.win_ptr, 2, 1L << 0, key_pres, &data);
 			mlx_hook(mlx.win_ptr, 3, 1L << 1, key_release, &data);
+			mlx_hook(mlx.win_ptr, 17, 1L<<1, destroynotify, &data);
 			mlx_loop_hook(mlx.mlx_ptr, draw_loop, &data);
 			mlx_loop(mlx.mlx_ptr);
 		}
