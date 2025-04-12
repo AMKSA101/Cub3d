@@ -6,7 +6,7 @@
 /*   By: abamksa <abamksa@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/30 20:13:12 by a-ait-bo          #+#    #+#             */
-/*   Updated: 2025/04/04 11:18:04 by abamksa          ###   ########.fr       */
+/*   Updated: 2025/04/12 18:46:52 by abamksa          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ int	check_wall(t_scene *img,	char    **map, float x, float y)
 
 	map_y = (int)(y / BLOCK);
 	map_x = (int)(x / BLOCK);
-	offset = 13;
+	offset = 0.1;
 	// offset = 0.1;
 	map_x = (int)((x + offset) / BLOCK);
 	if (map_x < img->map_width && map[map_y][map_x] == '1')

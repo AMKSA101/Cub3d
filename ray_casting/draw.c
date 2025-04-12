@@ -6,7 +6,7 @@
 /*   By: abamksa <abamksa@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 12:21:05 by a-ait-bo          #+#    #+#             */
-/*   Updated: 2025/04/07 10:02:48 by abamksa          ###   ########.fr       */
+/*   Updated: 2025/04/12 18:46:17 by abamksa          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -182,10 +182,10 @@ void	get_wall_height(t_data *data, float start_x, int i)
 	ray->end_y = ray->height + ray->start_y;
 	
 	// Clamp values
-	if (ray->start_y < 0)
-		ray->start_y = 0;
-	if (ray->end_y > HEIGHT)
-		ray->end_y = HEIGHT;
+	// if (ray->start_y < 0)
+	// 	ray->start_y = 0;
+	// if (ray->end_y > HEIGHT)
+	// 	ray->end_y = HEIGHT;
 	
 	// Draw the wall
 	draw_wall(data, start_x, i);

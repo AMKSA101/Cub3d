@@ -6,13 +6,13 @@
 /*   By: abamksa <abamksa@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/12 10:38:31 by abamksa           #+#    #+#             */
-/*   Updated: 2025/04/12 10:41:42 by abamksa          ###   ########.fr       */
+/*   Updated: 2025/04/12 19:18:05 by abamksa          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../Headers/cub3d.h"
 
-int	allocate_components(char ***texture, char ***color, char ***map, int size, int map_start)
+int	allocate_components(char ***texture, char ***color, char ***map, int *vars)
 {
 	if (ft_alloc(texture, 4) == -1)
 		return (-1);
@@ -21,7 +21,7 @@ int	allocate_components(char ***texture, char ***color, char ***map, int size, i
 		double_free(*texture);
 		return (-1);
 	}
-	if (ft_alloc(map, size - map_start) == -1)
+	if (ft_alloc(map, vars[0] - vars[1]) == -1)
 	{
 		double_free(*texture);
 		double_free(*color);
@@ -42,7 +42,7 @@ int	find_map_start(char **content, int size)
 		if (content[i][0] == '1' || content[i][0] == '0')
 		{
 			map_start = i;
-			break;
+			break ;
 		}
 		i++;
 	}
@@ -51,7 +51,8 @@ int	find_map_start(char **content, int size)
 	return (map_start);
 }
 
-int	extract_textures_and_colors(char **content, int map_start, char **texture, char **color)
+int	extract_textures_and_colors(char **content, int map_start,
+		char **texture, char **color)
 {
 	int		i;
 	int		texture_index;
@@ -62,16 +63,14 @@ int	extract_textures_and_colors(char **content, int map_start, char **texture, c
 	i = 0;
 	while (i < map_start)
 	{
-		if (texture_index < 4 && (ft_strncmp(content[i], "NO", 2) == 0 || 
-			ft_strncmp(content[i], "SO", 2) == 0 || 
-			ft_strncmp(content[i], "WE", 2) == 0 || 
-			ft_strncmp(content[i], "EA", 2) == 0))
+		if (texture_index < 4 && (ft_strncmp(content[i], "NO", 2) == 0
+				|| ft_strncmp(content[i], "SO", 2) == 0
+				|| ft_strncmp(content[i], "WE", 2) == 0
+				|| ft_strncmp(content[i], "EA", 2) == 0))
 			texture[texture_index++] = ft_strdup(content[i]);
-			
-		else if (color_index < 2 && (ft_strncmp(content[i], "F", 1) == 0 || 
-			ft_strncmp(content[i], "C", 1) == 0))
+		else if (color_index < 2 && (ft_strncmp(content[i], "F", 1) == 0
+				|| ft_strncmp(content[i], "C", 1) == 0))
 			color[color_index++] = ft_strdup(content[i]);
-			
 		else
 			return (-1);
 		i++;

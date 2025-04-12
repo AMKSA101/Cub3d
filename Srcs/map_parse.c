@@ -6,7 +6,7 @@
 /*   By: abamksa <abamksa@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/16 15:33:10 by abamksa           #+#    #+#             */
-/*   Updated: 2025/04/12 10:06:20 by abamksa          ###   ########.fr       */
+/*   Updated: 2025/04/12 18:55:53 by abamksa          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,10 +14,10 @@
 
 int	parse_map(char **map, t_scene *scene)
 {
-	int i;
+	int	i;
 
 	if (!map)
-		return(print_error("Map array is NULL", __FILE__, __LINE__), -1);
+		return (print_error("Map array is NULL", __FILE__, __LINE__), -1);
 	i = 0;
 	while (map[i])
 	{
@@ -32,25 +32,28 @@ int	parse_map(char **map, t_scene *scene)
 	return (0);
 }
 
-int check_map_line(char *line)
+int	check_map_line(char *line)
 {
-	int i;
+	int	i;
 
 	if (!line)
 		return (print_error("Map line is NULL", __FILE__, __LINE__), -1);
 	i = 0;
 	while (line[i])
 	{
-		if (line[i] != '0' && line[i] != '1' && line[i] != 'N' && line[i] != 'S' && line[i] != 'E' && line[i] != 'W' && line[i] != ' ')
-			return (print_error("Invalid character in map", __FILE__, __LINE__), -1);
+		if (line[i] != '0' && line[i] != '1' && line[i] != 'N'
+			&& line[i] != 'S' && line[i] != 'E' && line[i] != 'W'
+			&& line[i] != ' ')
+			return (print_error("Invalid character in map", __FILE__, __LINE__),
+				-1);
 		i++;
 	}
 	return (0);
 }
 
-int check_line(char *line)
+int	check_line(char *line)
 {
-	int i;
+	int	i;
 
 	if (!line)
 		return (-1);
@@ -67,14 +70,12 @@ int check_line(char *line)
 int	check_borders(char **map, t_scene *scene)
 {
 	size_t	i;
-	size_t	j;
-	size_t map_width;
+	size_t	map_width;
 
 	if (check_line(map[0]) == -1)
 		return (-1);
 	if (check_line(map[scene->map_height - 1]) == -1)
 		return (-1);
-
 	i = 0;
 	while (i < scene->map_height)
 	{
@@ -86,10 +87,10 @@ int	check_borders(char **map, t_scene *scene)
 	return (0);
 }
 
-int check_map_valid(char **map, t_scene *scene)
+int	check_map_valid(char **map, t_scene *scene)
 {
-	size_t i;
-	size_t player_count;
+	size_t	i;
+	size_t	player_count;
 
 	if (!map)
 		return (print_error("Map array is NULL", __FILE__, __LINE__), -1);
@@ -104,6 +105,6 @@ int check_map_valid(char **map, t_scene *scene)
 		i++;
 	}
 	if (player_count != 1)
-		return(print_error("Wrong player count", __FILE__, __LINE__), -1);
+		return (print_error("Wrong player count", __FILE__, __LINE__), -1);
 	return (0);
 }
