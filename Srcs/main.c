@@ -6,7 +6,7 @@
 /*   By: abamksa <abamksa@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/24 11:18:49 by abamksa           #+#    #+#             */
-/*   Updated: 2025/04/04 11:18:04 by abamksa          ###   ########.fr       */
+/*   Updated: 2025/04/12 09:22:25 by abamksa          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,17 +18,19 @@ void *load_texture(t_data *data, int *width, int *height, char *path)
 	if (!texture)
 	{
 		free_scene(data->scene);
-		fprintf(stderr, "Error loading texture from path: %s\n", path); // Print the path
 		print_error("Error loading texture", __FILE__, __LINE__);
 		exit(-1);
 	}
 	return texture;
 }
+
 t_texture *get_textures(t_data *data)
 {
-	t_texture *textures = (t_texture *)malloc(sizeof(t_texture));
-	int width;
-	int height;
+	t_texture	*textures;
+	int			width;
+	int			height;
+
+	textures = (t_texture *)malloc(sizeof(t_texture));
 	if (!textures)
 	{
 		free_scene(data->scene);
@@ -49,14 +51,41 @@ t_texture *get_textures(t_data *data)
 	textures->west_height = height;
 	return textures;
 }
+
+void	mlx_hook_loop(t_data *data)
+{
+	mlx_hook(data->mlx->win_ptr, KeyPress, KeyPressMask, key_pres, data);
+	mlx_hook(data->mlx->win_ptr, KeyRelease, KeyReleaseMask, key_release, data);
+	mlx_hook(data->mlx->win_ptr, DestroyNotify, StructureNotifyMask, destroynotify, data);
+	mlx_loop_hook(data->mlx->mlx_ptr, draw_loop, data);
+	mlx_loop(data->mlx->mlx_ptr);
+}
+
+void	free_all(t_data *data)
+{
+	if (data->texture)
+	{
+		if (data->texture->north)
+			mlx_destroy_image(data->mlx->mlx_ptr, data->texture->north);
+		if (data->texture->south)
+			mlx_destroy_image(data->mlx->mlx_ptr, data->texture->south);
+		if (data->texture->west)
+			mlx_destroy_image(data->mlx->mlx_ptr, data->texture->west);
+		if (data->texture->east)
+			mlx_destroy_image(data->mlx->mlx_ptr, data->texture->east);
+		free(data->texture);
+	}
+	free_scene(data->scene);
+}
+
 int main(int ac, char **av)
 {
-	t_data data;
-	t_scene scene;
-	t_mlx   mlx;
-	t_player player;
-	t_ray   ray;
-	t_texture *texture;
+	t_data		data;
+	t_scene		scene;
+	t_mlx		mlx;
+	t_player	player;
+	t_ray		ray;
+	
 	ft_memset(&data, 0, sizeof(t_data));
 	ft_memset(&scene, 0, sizeof(t_scene));
 	ft_memset(&mlx, 0, sizeof(t_mlx));
@@ -73,13 +102,9 @@ int main(int ac, char **av)
 		{
 			init_game(&data);
 			data.texture = get_textures(&data);
-			mlx_hook(mlx.win_ptr, 2, 1L << 0, key_pres, &data);
-			mlx_hook(mlx.win_ptr, 3, 1L << 1, key_release, &data);
-			mlx_hook(mlx.win_ptr, 17, 1L<<1, destroynotify, &data);
-			mlx_loop_hook(mlx.mlx_ptr, draw_loop, &data);
-			mlx_loop(mlx.mlx_ptr);
+			mlx_hook_loop(&data);
 		}
-		free_scene(&scene);
+		free_all(&data);
 	}
 	else
 		return(1);

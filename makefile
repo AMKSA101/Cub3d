@@ -1,8 +1,8 @@
 NAME = cub3D
 HEADER = ./Headers/cub3d.h
 CCF = cc  -g  -I./Headers -I./libft -I./minilibx-linux -fsanitize=address #-O3 for optimization
-SRC = 	Srcs/main.c Srcs/get_next_line.c Srcs/parse_file.c Srcs/utils_1.c \
-		Srcs/map_parse.c Srcs/texture_parse.c Srcs/color_parse.c Srcs/parsing.c\
+SRC = 	Srcs/main.c Srcs/get_next_line.c Srcs/utils_1.c \
+		Srcs/map_parse.c Srcs/map_parse_help.c Srcs/helper_funcs.c Srcs/texture_parse.c Srcs/color_parse.c Srcs/parsing.c Srcs/ft_parse_help.c\
 		ray_casting/draw.c ray_casting/init.c ray_casting/moves.c  ray_casting/utils.c
 OBJ_DIR = ./Obj/
 OBJ = $(addprefix $(OBJ_DIR), $(SRC:.c=.o))

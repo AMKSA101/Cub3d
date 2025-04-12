@@ -6,7 +6,7 @@
 /*   By: abamksa <abamksa@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/24 10:56:12 by abamksa           #+#    #+#             */
-/*   Updated: 2025/04/04 11:18:04 by abamksa          ###   ########.fr       */
+/*   Updated: 2025/04/12 10:41:24 by abamksa          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -191,9 +191,14 @@ void	print_error(char *error, char *file, int line);
 int		check_file_extension(char *file_name, char *ext);
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~parsing~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+int	allocate_components(char ***texture, char ***color, char ***map, int size, int map_start);
+int	extract_textures_and_colors(char **content, int map_start, char **texture, char **color);
 int	check_file_input(char **content, int size, t_data *data, t_scene *scene);
 int	parse_cube(int fd, int line_count, t_data *data, t_scene *scene);
+int	copy_map_data(char **content, int map_start, int size, char **map);
+int	find_map_start(char **content, int size);
 int	ft_parse(char *file_name, t_data *data);
+int	calculate_map_width(t_scene *scene);
 int	count_lines(char *file_name);
 int	check_empty_line(char *line);
 
@@ -203,6 +208,12 @@ int	check_map_line(char *line);
 int	parse_map(char **map, t_scene *scene);
 int	check_borders(char **map, t_scene *scene);
 int	check_map_valid(char **map, t_scene *scene);
+int is_valid_zero(char **map, size_t i, size_t j, t_scene *scene);
+int is_wall_or_player(char c);
+int is_player(char c);
+int es_wall(char c);
+int is_space(char c);
+int process_map_line(char **map, size_t i, size_t *player_count, t_scene *scene);
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~texture parsing~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 int	parse_texture(char **texture, t_data *data, t_scene *scene);
