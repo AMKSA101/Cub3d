@@ -6,7 +6,7 @@
 /*   By: abamksa <abamksa@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 12:21:05 by a-ait-bo          #+#    #+#             */
-/*   Updated: 2025/04/07 10:02:48 by abamksa          ###   ########.fr       */
+/*   Updated: 2025/04/12 18:46:17 by abamksa          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -135,10 +135,12 @@ void	get_wall_height_th(t_data *data, t_ray *ray, float start_x, int i)
 	ray->height = (BLOCK / ray->dist) * (HEIGHT / 2);
 	ray->start_y = (HEIGHT - ray->height) / 2;
 	ray->end_y = ray->height + ray->start_y;
+
 	// if (ray->start_y < 0)
 	// 	ray->start_y = 0;
 	// if (ray->end_y > HEIGHT)
 	// 	ray->end_y = HEIGHT;
+
 	draw_wall(data, start_x, i);
 	if (i == WIDTH / 2) {
 		char debug_str[256];
