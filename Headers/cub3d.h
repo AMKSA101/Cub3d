@@ -175,7 +175,7 @@ typedef struct s_data
 void	get_wall_height(t_data *data, float start_x, int i);
 int		draw_loop(t_data *data);
 void	draw_wall(t_data *data, float start_x, int i);
-void	draw_pixel(t_data *data, int x, int y, int size, int color);
+void	draw_pixel(t_data *data, int x, int y, int *size_color);
 void	draw_map(t_data *data);
 /*------*/
 
@@ -183,6 +183,27 @@ void	draw_map(t_data *data);
 void	init_game(t_data *data);
 void	init_player_position(t_player *player, t_scene *img);
 void	init_player(t_player *player, t_scene *img);
+/*------*/
+
+/*extra_utils.c*/
+float	distance(float x, float y);
+int	est_west(t_data *data, int i);
+int north_south(t_data *data, int i);
+void	step_y_set(t_data *data, t_ray *ray);
+/*------*/
+
+/*draw_help.c*/
+void    debug_ray_info(t_data *data, int i);
+void    check_tex(t_data *data, int i);
+void    draw_tex(t_data *data, int i, double tex_x, double tex_y);
+/*------*/
+
+/*draw_getters.c*/
+int get_direction(t_data *data);
+void	get_side(t_data *data);
+void    get_side_dist(t_data *data);
+void	get_wall_height_th(t_data *data, t_ray *ray, float start_x, int i);
+void	get_wall_height_tow(t_data *data, t_ray *ray, float start_x, int i);
 /*------*/
 
 /*texture*/

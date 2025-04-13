@@ -12,7 +12,7 @@
 
 #include "../Headers/cub3d.h"
 
-int	check_wall(t_scene *img,	char    **map, float x, float y)
+int	check_wall(t_scene *img, char **map, float x, float y)
 {
 	float	offset;
 	int		map_x;
@@ -20,7 +20,6 @@ int	check_wall(t_scene *img,	char    **map, float x, float y)
 
 	map_y = (int)(y / BLOCK);
 	map_x = (int)(x / BLOCK);
-	// offset = 14;
 	offset = 0.1;
 	map_x = (int)((x + offset) / BLOCK);
 	if (map_x < img->map_width && map[map_y][map_x] == '1')
@@ -42,7 +41,7 @@ int	check_wall(t_scene *img,	char    **map, float x, float y)
 	return (0);
 }
 
-int is_wall(t_scene *img, float x, float y)
+int	is_wall(t_scene *img, float x, float y)
 {
 	char	**map;
 	int		map_x;
@@ -51,8 +50,8 @@ int is_wall(t_scene *img, float x, float y)
 	map = img->map;
 	map_y = (int)(y / BLOCK);
 	map_x = (int)(x / BLOCK);
-	if (!map || map_y < 0 || map_x < 0 || 
-		map_y >= img->map_height || map_x >= img->map_width)
+	if (!map || map_y < 0 || map_x < 0
+		|| map_y >= img->map_height || map_x >= img->map_width)
 		return (1);
 	if (map[map_y][map_x] == '1')
 		return (1);
@@ -77,11 +76,6 @@ void	clear_image(t_data *data)
 	}
 }
 
-float	distance(float x, float y)
-{
-	return (sqrt(x * x + y * y));
-}
-
 void	get_start_x(t_data *data, t_player *player, t_mlx *mlx, t_scene *scene)
 {
 	float	fr;
@@ -90,7 +84,6 @@ void	get_start_x(t_data *data, t_player *player, t_mlx *mlx, t_scene *scene)
 
 	i = 0;
 	start_x = player->angle - PI / 6;
-
 	fr = PI / 3.0f / (float)WIDTH;
 	while (i < WIDTH)
 	{
