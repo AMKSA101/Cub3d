@@ -72,125 +72,76 @@ void	draw_map(t_data *data)
 	}
 }
 
-void	get_wall_height(t_data *data, float start_x, int i)
-{
-	t_ray	*ray;
-	float	ray_dir_x, ray_dir_y;
-	int		map_x, map_y;
-	double	side_dist_x, side_dist_y;
-	double	delta_dist_x, delta_dist_y;
-	int		step_x, step_y;
-	int		hit = 0;
-	int		side;
 
-	ray = data->ray;
-	ray_dir_x = cos(start_x);
-	ray_dir_y = sin(start_x);
-	
-	// Starting position
-	map_x = (int)(data->player->x / BLOCK);
-	map_y = (int)(data->player->y / BLOCK);
-	
-	// Calculate delta distances
-	delta_dist_x = (ray_dir_x == 0) ? 1e30 : fabs(1.0 / ray_dir_x);
-	delta_dist_y = (ray_dir_y == 0) ? 1e30 : fabs(1.0 / ray_dir_y);
-	
-	// Calculate step and initial side_dist
-	if (ray_dir_x < 0)
+void get_side_dist(t_data *data)
+{
+	if (data->ray->ray_dir_x < 0)
 	{
-		step_x = -1;
-		side_dist_x = (data->player->x / BLOCK - map_x) * delta_dist_x;
+		data->ray->step_x = -1;
+		data->ray->side_dist_x = (data->player->x / BLOCK - data->scene->map_x) * data->ray->delta_dist_x;
 	}
 	else
 	{
-		step_x = 1;
-		side_dist_x = (map_x + 1.0 - data->player->x / BLOCK) * delta_dist_x;
+		data->ray->step_x = 1;
+		data->ray->side_dist_x = (data->scene->map_x + 1.0 - data->player->x / BLOCK) * data->ray->delta_dist_x;
 	}
-	if (ray_dir_y < 0)
+	if (data->ray->ray_dir_y < 0)
 	{
-		step_y = -1;
-		side_dist_y = (data->player->y / BLOCK - map_y) * delta_dist_y;
+		data->ray->step_y = -1;
+		data->ray->side_dist_y = (data->player->y / BLOCK - data->scene->map_y) * data->ray->delta_dist_y;
 	}
 	else
 	{
-		step_y = 1;
-		side_dist_y = (map_y + 1.0 - data->player->y / BLOCK) * delta_dist_y;
+		data->ray->step_y = 1;
+		data->ray->side_dist_y = (data->scene->map_y + 1.0 - data->player->y / BLOCK) * data->ray->delta_dist_y;
 	}
-	
-	// Perform DDA
+}
+
+void	get_side(t_data *data)
+{
+	int	hit;
+	// int	data->ray->side;
+
+	hit = 0;
 	while (hit == 0)
 	{
-		// Jump to next map square
-		if (side_dist_x < side_dist_y)
+		if (data->ray->side_dist_x < data->ray->side_dist_y)
 		{
-			side_dist_x += delta_dist_x;
-			map_x += step_x;
-			side = 0; // X side hit
+			data->ray->side_dist_x += data->ray->delta_dist_x;
+			data->scene->map_x += data->ray->step_x;
+			data->scene->side = 0;
 		}
 		else
 		{
-			side_dist_y += delta_dist_y;
-			map_y += step_y;
-			side = 1; // Y side hit
+			data->ray->side_dist_y += data->ray->delta_dist_y;
+			data->scene->map_y += data->ray->step_y;
+			data->scene->side = 1;
 		}
-		
-		// Check if ray has hit a wall
-		if (map_x < 0 || map_y < 0 || 
-			map_x >= data->scene->map_width || 
-			map_y >= data->scene->map_height ||
-			data->scene->map[map_y][map_x] == '1')
+		if (data->scene->map_x < 0 || data->scene->map_y < 0 || 
+			data->scene->map_x >= data->scene->map_width || 
+			data->scene->map_y >= data->scene->map_height ||
+			data->scene->map[data->scene->map_y][data->scene->map_x] == '1')
 			hit = 1;
 	}
-	
-	// Calculate distance to the wall
-	double perp_wall_dist;
-	if (side == 0)
-		perp_wall_dist = (side_dist_x - delta_dist_x);
-	else
-		perp_wall_dist = (side_dist_y - delta_dist_y);
-	
-	// Calculate wall face and wall_x (texture coordinate)
-	if (side == 0) // X side
-	{
-		ray->wall = (step_x > 0) ? WEST : EAST;
-		// Calculate exact hit position on the wall
-		ray->wall_x = data->player->y / BLOCK + perp_wall_dist * ray_dir_y;
-		ray->wall_x = fmod(ray->wall_x, 1.0);
-	}
-	else // Y side
-	{
-		ray->wall = (step_y > 0) ? NORTH : SOUTH;
-		// Calculate exact hit position on the wall
-		ray->wall_x = data->player->x / BLOCK + perp_wall_dist * ray_dir_x;
-		ray->wall_x = fmod(ray->wall_x, 1.0);
-	}
-	
-	// Ensure wall_x is positive
-	if (ray->wall_x < 0)
-		ray->wall_x += 1.0;
-	
-	// Save hit position for debugging
-	ray->hit_x = map_x;
-	ray->hit_y = map_y;
-	ray->side = side;
-	
-	// Calculate wall height
-	ray->dist = perp_wall_dist * BLOCK;
+}
+
+void	get_wall_height_th(t_data *data, t_ray *ray, float start_x, int i)
+{
+	ray->hit_x = data->scene->map_x;
+	ray->hit_y = data->scene->map_y;
+	ray->side = data->scene->side;
+	ray->dist = data->ray->perp_wall_dist * BLOCK;
 	ray->dist = ray->dist * cos(data->player->angle - start_x);
 	ray->height = (BLOCK / ray->dist) * (HEIGHT / 2);
 	ray->start_y = (HEIGHT - ray->height) / 2;
 	ray->end_y = ray->height + ray->start_y;
-	
-	// Clamp values
+
 	// if (ray->start_y < 0)
 	// 	ray->start_y = 0;
 	// if (ray->end_y > HEIGHT)
 	// 	ray->end_y = HEIGHT;
-	
-	// Draw the wall
+
 	draw_wall(data, start_x, i);
-	
-	// Display debug info for center ray
 	if (i == WIDTH / 2) {
 		char debug_str[256];
 		sprintf(debug_str, "Hit: %d,%d Wall:%d Side:%d WX:%.2f", 
@@ -199,45 +150,102 @@ void	get_wall_height(t_data *data, float start_x, int i)
 	}
 }
 
-void	draw_wall(t_data *data, float start_x, int i)
+void	get_wall_height_tow(t_data *data, t_ray *ray, float start_x, int i)
+{
+	if (data->scene->side == 0)
+		data->ray->perp_wall_dist = (data->ray->side_dist_x - data->ray->delta_dist_x);
+	else
+		data->ray->perp_wall_dist = (data->ray->side_dist_y - data->ray->delta_dist_y);
+	if (data->scene->side == 0) // X side
+	{
+		ray->wall = (data->ray->step_x > 0) ? WEST : EAST;
+		ray->wall_x = data->player->y / BLOCK + data->ray->perp_wall_dist * data->ray->ray_dir_y;
+		ray->wall_x = fmod(ray->wall_x, 1.0);
+	}
+	else // Y side
+	{
+		ray->wall = (data->ray->step_y > 0) ? NORTH : SOUTH;
+		ray->wall_x = data->player->x / BLOCK + data->ray->perp_wall_dist * data->ray->ray_dir_x;
+		ray->wall_x = fmod(ray->wall_x, 1.0);
+	}
+	if (ray->wall_x < 0)
+		ray->wall_x += 1.0;
+	get_wall_height_th(data, ray, start_x, i);
+}
+
+void	get_wall_height(t_data *data, float start_x, int i)
+{
+	t_ray	*ray;
+
+	ray = data->ray;
+	data->ray->ray_dir_x = cos(start_x);
+	data->ray->ray_dir_y = sin(start_x);
+	data->scene->map_x = (int)(data->player->x / BLOCK);
+	data->scene->map_y = (int)(data->player->y / BLOCK);
+	data->ray->delta_dist_x = (data->ray->ray_dir_x == 0) ? 1e30 : fabs(1.0 / data->ray->ray_dir_x);
+	data->ray->delta_dist_y = (data->ray->ray_dir_y == 0) ? 1e30 : fabs(1.0 / data->ray->ray_dir_y);
+	get_side_dist(data);
+	get_side(data);
+	get_wall_height_tow(data, ray, start_x, i);
+}
+int	est_west(t_data *data, int i)
+{
+	if (i == 3)
+	{
+		data->texture->texture_ = data->texture->east;
+		data->texture->tex_width = data->texture->east_width;
+		data->texture->tex_height = data->texture->east_height;
+		return (1);
+	}
+	if (i == 4)
+	{
+		data->texture->texture_ = data->texture->west;
+		data->texture->tex_width = data->texture->west_width;
+		data->texture->tex_height = data->texture->west_height;
+		return (1);
+	}
+	return 0;
+}
+int	north_south(t_data *data, int i)
+{
+	if (i == 1)
+	{
+		data->texture->texture_ = data->texture->north;
+		data->texture->tex_width = data->texture->north_width;
+		data->texture->tex_height = data->texture->north_height;
+		return (1);
+	}
+	else if (i == 2)
+	{
+		data->texture->texture_ = data->texture->south;
+		data->texture->tex_width = data->texture->south_width;
+		data->texture->tex_height = data->texture->south_height;
+		return (1);
+	}
+	return 0;
+}
+
+int get_direction(t_data *data)
+{
+    if (data->ray->wall == NORTH)
+        return north_south(data, 1);
+    else if (data->ray->wall == SOUTH)
+        return north_south(data, 2);
+    else if (data->ray->wall == EAST)
+        return est_west(data, 3);
+    else if (data->ray->wall == WEST)
+        return est_west(data, 4);
+    data->texture->tex_width = 0;
+    data->texture->tex_height = 0;
+    return 0;
+}
+
+void	check_tex(t_data *data, int i)
 {
 	int y;
-	int color;
-	t_texture *textures = data->texture;
-	int tex_width, tex_height;
-	char *texture_addr;
-	int bits_per_pixel, line_length, endian;
 
 	y = 0;
-	void *texture = NULL;
-	switch (data->ray->wall)
-	{
-	case NORTH:
-		texture = textures->north;
-		tex_width = textures->north_width;
-		tex_height = textures->north_height;
-		break;
-	case SOUTH:
-		texture = textures->south;
-		tex_width = textures->south_width;
-		tex_height = textures->south_height;
-		break;
-	case EAST:
-		texture = textures->east;
-		tex_width = textures->east_width;
-		tex_height = textures->east_height;
-		break;
-	case WEST:
-		texture = textures->west;
-		tex_width = textures->west_width;
-		tex_height = textures->west_height;
-		break;
-	default:
-		tex_width = 0;
-		tex_height = 0;
-	}
-
-	if (texture == NULL)
+	if (data->texture->texture_ == NULL)
 	{
 		while (y < data->ray->start_y)
 		{
@@ -258,55 +266,53 @@ void	draw_wall(t_data *data, float start_x, int i)
 		}
 		return;
 	}
+}
 
-	texture_addr = mlx_get_data_addr(texture, &bits_per_pixel, &line_length, &endian);
+void draw_tex(t_data *data, int i)
+{
+	int y;
+	int color;
 
-	// Draw ceiling
+	y = data->ray->start_y;
+	while (y < data->ray->end_y)
+	{
+		double tex_y = (double)(y - data->ray->start_y) / (double)(data->ray->end_y - data->ray->start_y);
+		double tex_x = data->ray->wall_x;
+		if (data->ray->wall == WEST || data->ray->wall == SOUTH)
+			tex_x = 1.0 - tex_x;
+		tex_x = fmax(0.0, fmin(0.999, tex_x));
+		tex_y = fmax(0.0, fmin(0.999, tex_y));
+		int tex_x_int = (int)(tex_x * data->texture->tex_width);
+		int tex_y_int = (int)(tex_y * data->texture->tex_height);
+		if (tex_x_int < 0) tex_x_int = 0;
+		if (tex_y_int < 0) tex_y_int = 0;
+		if (tex_x_int >= data->texture->tex_width) tex_x_int = data->texture->tex_width - 1;
+		if (tex_y_int >= data->texture->tex_height) tex_y_int = data->texture->tex_height - 1;
+		char *dst = data->texture->texture_addr + (tex_y_int * data->texture->line_length + 
+		tex_x_int * (data->texture->bits_per_pixel / 8));
+		color = *(unsigned int *)dst;
+		my_mlx_pixel_put(data, i, y, color);
+		y++;
+	}
+}
+void	draw_wall(t_data *data, float start_x, int i)
+{
+	int y;
+	int color;
+
+	
+	data->texture->texture_ = NULL;
+	get_direction(data);
+	check_tex(data, i);
+	data->texture->texture_addr = mlx_get_data_addr(data->texture->texture_, &data->texture->bits_per_pixel,
+	 &data->texture->line_length, &data->texture->endian);
 	y = 0;
 	while (y < data->ray->start_y)
 	{
 		my_mlx_pixel_put(data, i, y, data->scene->ceiling_color);
 		y++;
 	}
-
-	// Draw textured wall
-	y = data->ray->start_y;
-	while (y < data->ray->end_y)
-	{
-		// Calculate texture Y coordinate
-		double tex_y = (double)(y - data->ray->start_y) / (double)(data->ray->end_y - data->ray->start_y);
-		
-		// Get texture X from ray wall_x (already normalized 0-1)
-		double tex_x = data->ray->wall_x;
-		
-		// Flip textures if needed based on wall orientation
-		if (data->ray->wall == WEST || data->ray->wall == SOUTH)
-			tex_x = 1.0 - tex_x;
-		
-		// Ensure texture coordinates are in valid range
-		tex_x = fmax(0.0, fmin(0.999, tex_x));
-		tex_y = fmax(0.0, fmin(0.999, tex_y));
-		
-		// Convert to pixel coordinates in texture
-		int tex_x_int = (int)(tex_x * tex_width);
-		int tex_y_int = (int)(tex_y * tex_height);
-		
-		// Safety checks to prevent buffer overflow
-		if (tex_x_int < 0) tex_x_int = 0;
-		if (tex_y_int < 0) tex_y_int = 0;
-		if (tex_x_int >= tex_width) tex_x_int = tex_width - 1;
-		if (tex_y_int >= tex_height) tex_y_int = tex_height - 1;
-		
-		// Get pixel color from texture
-		char *dst = texture_addr + (tex_y_int * line_length + tex_x_int * (bits_per_pixel / 8));
-		color = *(unsigned int *)dst;
-		
-		// Draw pixel on screen
-		my_mlx_pixel_put(data, i, y, color);
-		y++;
-	}
-
-	// Draw floor
+	draw_tex(data, i);
 	y = data->ray->end_y;
 	while (y < HEIGHT)
 	{
@@ -315,13 +321,12 @@ void	draw_wall(t_data *data, float start_x, int i)
 	}
 }
 
-// Debug function to show ray information
 void debug_ray_info(t_data *data, int i)
 {
-    t_ray *ray = data->ray;
+    t_ray *ray;
     char debug_str[256];
     
-    // Only print for a specific column to avoid flooding the console
+	ray = data->ray;
     if (i == WIDTH / 2) {
         sprintf(debug_str, "Ray %d: Wall=%d, Side=%d, WallX=%.2f, Dist=%.2f",
                 i, ray->wall, ray->side, ray->wall_x, ray->dist);

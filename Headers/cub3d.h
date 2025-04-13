@@ -63,6 +63,13 @@ typedef struct s_texture
 	void	*east;
 	int		east_width;
 	int		east_height;
+	void *texture_;
+	int 	tex_width;
+	int		tex_height;
+	char	*texture_addr;
+	int		bits_per_pixel;
+	int		line_length;
+	int		endian;
 } t_texture;
 
 typedef struct s_player
@@ -93,8 +100,10 @@ typedef struct s_scene
 	char *west;
 	char *east;
 	int floor[3];
-	int ceiling[3];
-	char **map;
+	int	ceiling[3];
+	char	**map;
+	int		map_x;
+	int		map_y;
 	size_t map_width;
 	size_t map_height;
 	int		endian;
@@ -110,6 +119,8 @@ typedef struct s_scene
 	int		ceiling_color;
 	char	*data;
 
+	int side;
+
 	char player_start_dir;
 } t_scene;
 
@@ -123,9 +134,18 @@ typedef struct s_ray
 	float	height;
 	int		start_y;
 	int		end_y;
+	double	side_dist_x;
+	double side_dist_y;
+	float	ray_dir_x;
+	float	ray_dir_y;
 
-	
+	double	delta_dist_x;
+	double	delta_dist_y;
+	double perp_wall_dist;
+
 	double distance;
+	int		step_x;
+	int		step_y;
 	int hit_x;
 	int hit_y;
 	int side;

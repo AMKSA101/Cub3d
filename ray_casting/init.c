@@ -22,7 +22,7 @@ void	init_game(t_data *data)
 	init_player_position(data->player, data->scene);
 	init_player(data->player, data->scene);
 	mlx->mlx_ptr = mlx_init();
-	mlx->win_ptr = mlx_new_window(mlx->mlx_ptr, WIDTH, HEIGHT, "test");
+	mlx->win_ptr = mlx_new_window(mlx->mlx_ptr, WIDTH, HEIGHT, "Cub3D");
 	mlx->img = mlx_new_image(mlx->mlx_ptr, WIDTH, HEIGHT);
 	mlx->addr = mlx_get_data_addr(mlx->img, &img->bits_per_pixel, \
 									&img->line_length, &img->endian);

@@ -20,8 +20,8 @@ int	check_wall(t_scene *img,	char    **map, float x, float y)
 
 	map_y = (int)(y / BLOCK);
 	map_x = (int)(x / BLOCK);
+	// offset = 14;
 	offset = 0.1;
-	// offset = 0.1;
 	map_x = (int)((x + offset) / BLOCK);
 	if (map_x < img->map_width && map[map_y][map_x] == '1')
 		if (x + offset >= map_x * BLOCK && x + offset < (map_x + 1) * BLOCK)
