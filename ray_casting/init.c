@@ -6,7 +6,7 @@
 /*   By: abamksa <abamksa@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 10:54:38 by a-ait-bo          #+#    #+#             */
-/*   Updated: 2025/04/14 11:30:43 by abamksa          ###   ########.fr       */
+/*   Updated: 2025/04/14 12:46:18 by abamksa          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,4 +63,28 @@ void	init_player(t_player *player, t_scene *img)
 	player->right_rotate = false;
 	player->speed_rotate = false;
 	player->speed = 0.2;
+}
+
+void	direction_of_player(t_scene *img, t_player *player)
+{
+	if (player->key_up)
+	{
+		player->new_x -= player->cos_angle * player->speed;
+		player->new_y -= player->sin_angle * player->speed;
+	}
+	if (player->key_down)
+	{
+		player->new_x += player->cos_angle * player->speed;
+		player->new_y += player->sin_angle * player->speed;
+	}
+	if (player->key_left)
+	{
+		player->new_x -= player->sin_angle * player->speed;
+		player->new_y += player->cos_angle * player->speed;
+	}
+	if (player->key_right)
+	{
+		player->new_x += player->sin_angle * player->speed;
+		player->new_y -= player->cos_angle * player->speed;
+	}
 }

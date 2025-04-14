@@ -6,16 +6,46 @@
 /*   By: abamksa <abamksa@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 11:36:22 by a-ait-bo          #+#    #+#             */
-/*   Updated: 2025/03/07 11:14:53 by abamksa          ###   ########.fr       */
+/*   Updated: 2025/04/14 12:46:44 by abamksa          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../Headers/cub3d.h"
 
+void	free_mlx(t_data *data)
+{
+	if (data->mlx)
+	{
+		if (data->mlx->img)
+			mlx_destroy_image(data->mlx->mlx_ptr, data->mlx->img);
+		if (data->mlx->win_ptr)
+			mlx_destroy_window(data->mlx->mlx_ptr, data->mlx->win_ptr);
+		if (data->mlx->mlx_ptr)
+		{
+			mlx_destroy_display(data->mlx->mlx_ptr);
+			free(data->mlx->mlx_ptr);
+		}
+	}
+}
+
 int	destroynotify(t_data *data)
 {
-	exit (0);
-	return (0);
+	if (data->texture)
+	{
+		if (data->texture->north)
+			mlx_destroy_image(data->mlx->mlx_ptr, data->texture->north);
+		if (data->texture->south)
+			mlx_destroy_image(data->mlx->mlx_ptr, data->texture->south);
+		if (data->texture->west)
+			mlx_destroy_image(data->mlx->mlx_ptr, data->texture->west);
+		if (data->texture->east)
+			mlx_destroy_image(data->mlx->mlx_ptr, data->texture->east);
+		free(data->texture);
+		data->texture = NULL;
+	}
+	free_scene(data->scene);
+	free_mlx(data);
+	exit(0);
 }
 
 int	key_pres(int keycode, t_data *data)
@@ -33,7 +63,7 @@ int	key_pres(int keycode, t_data *data)
 	if (keycode == RIGHT)
 		data->player->right_rotate = true;
 	if (keycode == 65307)
-		exit(0);
+		destroynotify(data);
 	return (0);
 }
 
@@ -77,29 +107,5 @@ void	move_player(t_scene *img, t_player *player)
 	{
 		player->x = player->new_x;
 		player->y = player->new_y;
-	}
-}
-
-void	direction_of_player(t_scene *img, t_player *player)
-{
-	if (player->key_up)
-	{
-		player->new_x -= player->cos_angle * player->speed;
-		player->new_y -= player->sin_angle * player->speed;
-	}
-	if (player->key_down)
-	{
-		player->new_x += player->cos_angle * player->speed;
-		player->new_y += player->sin_angle * player->speed;
-	}
-	if (player->key_left)
-	{
-		player->new_x -= player->sin_angle * player->speed;
-		player->new_y += player->cos_angle * player->speed;
-	}
-	if (player->key_right)
-	{
-		player->new_x += player->sin_angle * player->speed;
-		player->new_y -= player->cos_angle * player->speed;
 	}
 }
