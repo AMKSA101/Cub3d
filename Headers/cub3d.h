@@ -6,12 +6,12 @@
 /*   By: abamksa <abamksa@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/24 10:56:12 by abamksa           #+#    #+#             */
-/*   Updated: 2025/04/12 19:20:47 by abamksa          ###   ########.fr       */
+/*   Updated: 2025/04/14 11:55:05 by abamksa          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CUB3D_H
-#define CUB3D_H
+# define CUB3D_H
 
 # include "../minilibx-linux/mlx.h"
 # include "../libft/libft.h"
@@ -47,7 +47,7 @@ typedef enum e_wall
 	SOUTH,
 	WEST,
 	EAST
-} t_wall;
+}	t_wall;
 
 typedef struct s_texture
 {
@@ -63,14 +63,14 @@ typedef struct s_texture
 	void	*east;
 	int		east_width;
 	int		east_height;
-	void *texture_;
-	int 	tex_width;
+	void	*texture_;
+	int		tex_width;
 	int		tex_height;
 	char	*texture_addr;
 	int		bits_per_pixel;
 	int		line_length;
 	int		endian;
-} t_texture;
+}	t_texture;
 
 typedef struct s_player
 {
@@ -91,39 +91,38 @@ typedef struct s_player
 	bool	left_rotate;
 	bool	right_rotate;
 	bool	speed_rotate;
-} t_player;
+}	t_player;
 
 typedef struct s_scene
 {
-	char *north;
-	char *south;
-	char *west;
-	char *east;
-	int floor[3];
-	int	ceiling[3];
+	char	*north;
+	char	*south;
+	char	*west;
+	char	*east;
+	int		floor[3];
+	int		ceiling[3];
 	char	**map;
 	int		map_x;
 	int		map_y;
-	size_t map_width;
-	size_t map_height;
+	size_t	map_width;
+	size_t	map_height;
 	int		endian;
 	int		line_length;
 	int		bits_per_pixel;
 	double	player_start_x;
 	double	player_start_y;
-	char *north_texture;
-	char *south_texture;
-	char *west_texture;
-	char *east_texture;
-	int floor_color;
+	char	*north_texture;
+	char	*south_texture;
+	char	*west_texture;
+	char	*east_texture;
+	int		floor_color;
 	int		ceiling_color;
 	char	*data;
 
-	int side;
+	int		side;
 
-	char player_start_dir;
-} t_scene;
-
+	char	player_start_dir;
+}	t_scene;
 
 typedef struct s_ray
 {
@@ -135,23 +134,23 @@ typedef struct s_ray
 	int		start_y;
 	int		end_y;
 	double	side_dist_x;
-	double side_dist_y;
+	double	side_dist_y;
 	float	ray_dir_x;
 	float	ray_dir_y;
 
 	double	delta_dist_x;
 	double	delta_dist_y;
-	double perp_wall_dist;
+	double	perp_wall_dist;
 
-	double distance;
+	double	distance;
 	int		step_x;
 	int		step_y;
-	int hit_x;
-	int hit_y;
-	int side;
-	double wall_x;
-	t_wall wall;
-} t_ray;
+	int		hit_x;
+	int		hit_y;
+	int		side;
+	double	wall_x;
+	t_wall	wall;
+}	t_ray;
 
 typedef struct s_mlx
 {
@@ -160,7 +159,7 @@ typedef struct s_mlx
 	void	*img_ptr;
 	char	*addr;
 	void	*img;
-} t_mlx;
+}	t_mlx;
 
 typedef struct s_data
 {
@@ -168,8 +167,8 @@ typedef struct s_data
 	t_player	*player;
 	t_ray		*ray;
 	t_scene		*scene;
-	t_texture *texture;
-} t_data;
+	t_texture	*texture;
+}	t_data;
 
 /*draw.c*/
 void	get_wall_height(t_data *data, float start_x, int i);
@@ -187,29 +186,28 @@ void	init_player(t_player *player, t_scene *img);
 
 /*extra_utils.c*/
 float	distance(float x, float y);
-int	est_west(t_data *data, int i);
-int north_south(t_data *data, int i);
+int		est_west(t_data *data, int i);
+int		north_south(t_data *data, int i);
 void	step_y_set(t_data *data, t_ray *ray);
 /*------*/
 
 /*draw_help.c*/
-void    debug_ray_info(t_data *data, int i);
-void    check_tex(t_data *data, int i);
-void    draw_tex(t_data *data, int i, double tex_x, double tex_y);
+void	debug_ray_info(t_data *data, int i);
+void	check_tex(t_data *data, int i);
+void	draw_tex(t_data *data, int i, double tex_x, double tex_y);
 /*------*/
 
 /*draw_getters.c*/
-int get_direction(t_data *data);
+int		get_direction(t_data *data);
 void	get_side(t_data *data);
-void    get_side_dist(t_data *data);
+void	get_side_dist(t_data *data);
 void	get_wall_height_th(t_data *data, t_ray *ray, float start_x, int i);
 void	get_wall_height_tow(t_data *data, t_ray *ray, float start_x, int i);
 /*------*/
 
 /*texture*/
-void	*load_texture(t_data *data, int *width, int *height, char *path);
 void	texture_load(t_data *data, t_texture *textures);
-t_texture *get_textures(t_data *data);
+void	*load_texture(t_data *data, int *width, int *height, char *path);
 /*------*/
 
 /*move.c*/
@@ -236,44 +234,48 @@ int		ft_alloc(char ***arr, int size);
 int		get_next_line(int fd, char **str);
 void	print_error(char *error, char *file, int line);
 int		check_file_extension(char *file_name, char *ext);
-void	init_data(t_data *data, t_scene *scene, t_mlx *mlx, t_player *player);
+void	init_data(t_data *data, t_scene *scene, t_mlx *mlx,
+			t_player *player);
 
+/*~~~~~~~~~~~~~~~~~~~~~~parsing~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+int		allocate_components(char ***texture, char ***color,
+			char ***map, int *vars);
+int		extract_textures_and_colors(char **content,
+			int map_start, char **texture, char **color);
+int		check_file_input(char **content, int size,
+			t_data *data, t_scene *scene);
+int		parse_cube(int fd, int line_count, t_data *data, t_scene *scene);
+int		copy_map_data(char **content, int map_start, int size, char **map);
+int		find_map_start(char **content, int size);
+int		ft_parse(char *file_name, t_data *data);
+int		calculate_map_width(t_scene *scene);
+int		count_lines(char *file_name);
+int		check_empty_line(char *line);
 
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~parsing~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-int	allocate_components(char ***texture, char ***color, char ***map, int *vars);
-int	extract_textures_and_colors(char **content, int map_start, char **texture, char **color);
-int	check_file_input(char **content, int size, t_data *data, t_scene *scene);
-int	parse_cube(int fd, int line_count, t_data *data, t_scene *scene);
-int	copy_map_data(char **content, int map_start, int size, char **map);
-int	find_map_start(char **content, int size);
-int	ft_parse(char *file_name, t_data *data);
-int	calculate_map_width(t_scene *scene);
-int	count_lines(char *file_name);
-int	check_empty_line(char *line);
+/*~~~~~~~~~~~~~~~~~~~~~map parsing~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+int		check_line(char *line);
+int		check_map_line(char *line);
+int		parse_map(char **map, t_scene *scene);
+int		check_borders(char **map, t_scene *scene);
+int		check_map_valid(char **map, t_scene *scene);
+int		is_valid_zero(char **map, size_t i, size_t j, t_scene *scene);
+int		is_wall_or_player(char c);
+int		is_player(char c);
+int		es_wall(char c);
+int		is_space(char c);
+int		process_map_line(char **map, size_t i, size_t *player_count,
+			t_scene *scene);
 
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~map parsing~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-int	check_line(char *line);
-int	check_map_line(char *line);
-int	parse_map(char **map, t_scene *scene);
-int	check_borders(char **map, t_scene *scene);
-int	check_map_valid(char **map, t_scene *scene);
-int is_valid_zero(char **map, size_t i, size_t j, t_scene *scene);
-int is_wall_or_player(char c);
-int is_player(char c);
-int es_wall(char c);
-int is_space(char c);
-int process_map_line(char **map, size_t i, size_t *player_count, t_scene *scene);
+/*~~~~~~~~~~~~~~~~~~~~~texture parsing~~~~~~~~~~~~~~~~~~~~~~~~*/
+int		parse_texture(char **texture, t_data *data, t_scene *scene);
+int		parse_texture_line(char *line, t_scene *scene);
 
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~texture parsing~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-int	parse_texture(char **texture, t_data *data, t_scene *scene);
-int	parse_texture_line(char *line, t_scene *scene);
-
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~color parsing~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-int	parse_rgb_values(char *str, int *r, int *g, int *b);
-int	parse_color_line(char *line, t_scene *scene);
-int	parse_color(char **color, t_scene *scene);
-int	set_color_in_scene(char *identifier, int *rgb, t_scene *scene);
-int	check_separator(char *str, char c);
-int	validate_rgb_values(int r, int g, int b);
+/*~~~~~~~~~~~~~~~~~~~~~color parsing~~~~~~~~~~~~~~~~~~~~~~~~*/
+int		parse_rgb_values(char *str, int *r, int *g, int *b);
+int		parse_color_line(char *line, t_scene *scene);
+int		parse_color(char **color, t_scene *scene);
+int		set_color_in_scene(char *identifier, int *rgb, t_scene *scene);
+int		check_separator(char *str, char c);
+int		validate_rgb_values(int r, int g, int b);
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: abamksa <abamksa@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 10:54:38 by a-ait-bo          #+#    #+#             */
-/*   Updated: 2025/03/07 10:54:31 by abamksa          ###   ########.fr       */
+/*   Updated: 2025/04/14 11:30:43 by abamksa          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,8 +24,8 @@ void	init_game(t_data *data)
 	mlx->mlx_ptr = mlx_init();
 	mlx->win_ptr = mlx_new_window(mlx->mlx_ptr, WIDTH, HEIGHT, "Cub3D");
 	mlx->img = mlx_new_image(mlx->mlx_ptr, WIDTH, HEIGHT);
-	mlx->addr = mlx_get_data_addr(mlx->img, &img->bits_per_pixel, \
-									&img->line_length, &img->endian);
+	mlx->addr = mlx_get_data_addr(mlx->img, &img->bits_per_pixel,
+			&img->line_length, &img->endian);
 }
 
 void	init_player_position(t_player *player, t_scene *img)

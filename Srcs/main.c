@@ -6,7 +6,7 @@
 /*   By: abamksa <abamksa@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/24 11:18:49 by abamksa           #+#    #+#             */
-/*   Updated: 2025/04/12 19:07:07 by abamksa          ###   ########.fr       */
+/*   Updated: 2025/04/14 11:54:58 by abamksa          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ void	texture_load(t_data *data, t_texture *textures)
 	textures->west_height = height;
 }
 
-t_texture	*get_textures(t_data *data)
+static t_texture	*get_textures(t_data *data)
 {
 	t_texture	*textures;
 

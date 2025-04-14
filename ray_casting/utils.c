@@ -6,7 +6,7 @@
 /*   By: abamksa <abamksa@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/30 20:13:12 by a-ait-bo          #+#    #+#             */
-/*   Updated: 2025/04/12 18:46:52 by abamksa          ###   ########.fr       */
+/*   Updated: 2025/04/14 11:31:22 by abamksa          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,7 +99,7 @@ void	my_mlx_pixel_put(t_data *data, int x, int y, int color)
 
 	if (x >= WIDTH || y >= HEIGHT || x < 0 || y < 0)
 		return ;
-	dst = data->mlx->addr + (y * data->scene->line_length + x * \
-	(data->scene->bits_per_pixel / 8));
+	dst = data->mlx->addr + (y * data->scene->line_length + x
+			* (data->scene->bits_per_pixel / 8));
 	*(unsigned int *)dst = color;
 }
