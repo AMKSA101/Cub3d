@@ -6,40 +6,26 @@
 /*   By: abamksa <abamksa@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/12 10:38:31 by abamksa           #+#    #+#             */
-/*   Updated: 2025/04/12 19:18:05 by abamksa          ###   ########.fr       */
+/*   Updated: 2025/04/15 16:27:32 by abamksa          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../Headers/cub3d.h"
 
-int	allocate_components(char ***texture, char ***color, char ***map, int *vars)
-{
-	if (ft_alloc(texture, 4) == -1)
-		return (-1);
-	if (ft_alloc(color, 2) == -1)
-	{
-		double_free(*texture);
-		return (-1);
-	}
-	if (ft_alloc(map, vars[0] - vars[1]) == -1)
-	{
-		double_free(*texture);
-		double_free(*color);
-		return (-1);
-	}
-	return (0);
-}
-
 int	find_map_start(char **content, int size)
 {
 	int		i;
 	int		map_start;
+	int		j;
 
 	i = 0;
 	map_start = -1;
 	while (i < size)
 	{
-		if (content[i][0] == '1' || content[i][0] == '0')
+		j = 0;
+		while (content[i][j] && (content[i][j] == ' ' || content[i][j] == '\t'))
+			j++;
+		if (content[i][j] == '1' || content[i][j] == '0')
 		{
 			map_start = i;
 			break ;
@@ -51,59 +37,70 @@ int	find_map_start(char **content, int size)
 	return (map_start);
 }
 
+static int	is_texture_identifier(char *line, int j)
+{
+	return ((line[j] == 'N' && line[j + 1] == 'O'
+			&& (line[j + 2] == ' ' || line[j + 2] == '\t'))
+		|| (line[j] == 'S' && line[j + 1] == 'O'
+			&& (line[j + 2] == ' ' || line[j + 2] == '\t'))
+		|| (line[j] == 'W' && line[j + 1] == 'E'
+			&& (line[j + 2] == ' ' || line[j + 2] == '\t'))
+		|| (line[j] == 'E' && line[j + 1] == 'A'
+			&& (line[j + 2] == ' ' || line[j + 2] == '\t')));
+}
+
+static int	is_color_identifier(char *line, int j)
+{
+	return ((line[j] == 'F' && (line[j + 1] == ' ' || line[j + 1] == '\t'))
+		|| (line[j] == 'C' && (line[j + 1] == ' ' || line[j + 1] == '\t')));
+}
+
+static int	process_line(t_parse_data *data, int i)
+{
+	int	j;
+
+	j = 0;
+	while (data->content[i][j] && (data->content[i][j] == ' ' ||
+			data->content[i][j] == '\t'))
+		j++;
+	if (data->content[i][j] == '\0')
+		return (0);
+	if (data->indices[0] < 4 && is_texture_identifier(data->content[i], j))
+	{
+		data->texture[data->indices[0]++] = ft_strdup(data->content[i]);
+		return (1);
+	}
+	else if (data->indices[1] < 2 && is_color_identifier(data->content[i], j))
+	{
+		data->color[data->indices[1]++] = ft_strdup(data->content[i]);
+		return (1);
+	}
+	return (0);
+}
+
 int	extract_textures_and_colors(char **content, int map_start,
 		char **texture, char **color)
 {
-	int		i;
-	int		texture_index;
-	int		color_index;
+	int				i;
+	t_parse_data	data;
 
-	texture_index = 0;
-	color_index = 0;
+	data.content = content;
+	data.texture = texture;
+	data.color = color;
+	data.indices[0] = 0;
+	data.indices[1] = 0;
 	i = 0;
 	while (i < map_start)
 	{
-		if (texture_index < 4 && (ft_strncmp(content[i], "NO", 2) == 0
-				|| ft_strncmp(content[i], "SO", 2) == 0
-				|| ft_strncmp(content[i], "WE", 2) == 0
-				|| ft_strncmp(content[i], "EA", 2) == 0))
-			texture[texture_index++] = ft_strdup(content[i]);
-		else if (color_index < 2 && (ft_strncmp(content[i], "F", 1) == 0
-				|| ft_strncmp(content[i], "C", 1) == 0))
-			color[color_index++] = ft_strdup(content[i]);
-		else
-			return (-1);
+		if (!process_line(&data, i))
+		{
+			i++;
+			continue ;
+		}
 		i++;
 	}
-	return (0);
-}
-
-int	copy_map_data(char **content, int map_start, int size, char **map)
-{
-	int	i;
-
-	i = 0;
-	while (i < (size - map_start))
-	{
-		map[i] = ft_strdup(content[map_start + i]);
-		i++;
-	}
-	return (0);
-}
-
-int	calculate_map_width(t_scene *scene)
-{
-	size_t	i;
-	size_t	current_width;
-
-	i = 0;
-	scene->map_width = ft_strlen(scene->map[0]);
-	while (scene->map[i])
-	{
-		current_width = ft_strlen(scene->map[i]);
-		if (scene->map_width < current_width)
-			scene->map_width = current_width;
-		i++;
-	}
+	if (data.indices[0] != 4 || data.indices[1] != 2)
+		return (print_error("Missing texture or color definitions",
+				__FILE__, __LINE__), -1);
 	return (0);
 }

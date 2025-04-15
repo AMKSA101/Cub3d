@@ -4,7 +4,7 @@ CCF = cc  -g  -I./Headers -I./libft -I./minilibx-linux #-fsanitize=address
 SRC = 	Srcs/main.c Srcs/get_next_line.c Srcs/utils_1.c \
 		Srcs/map_parse.c Srcs/map_parse_help.c Srcs/helper_funcs.c Srcs/texture_parse.c Srcs/color_parse.c Srcs/parsing.c Srcs/ft_parse_help.c\
 		ray_casting/draw.c ray_casting/draw_getters.c ray_casting/draw_help.c ray_casting/extra_utils.c ray_casting/init.c ray_casting/moves.c  ray_casting/utils.c
-SRC += Srcs/color_parse_utils.c
+SRC += Srcs/color_parse_utils.c Srcs/ft_parse_help2.c Srcs/extra_utils.c
 OBJ_DIR = ./Obj/
 OBJ = $(addprefix $(OBJ_DIR), $(SRC:.c=.o))
 LIBFT = ./libft/libft.a #-Wall -Wextra -Werror

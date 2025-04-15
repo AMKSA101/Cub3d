@@ -6,7 +6,7 @@
 /*   By: abamksa <abamksa@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/16 15:33:10 by abamksa           #+#    #+#             */
-/*   Updated: 2025/04/12 18:55:53 by abamksa          ###   ########.fr       */
+/*   Updated: 2025/04/15 16:24:57 by abamksa          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,41 +70,47 @@ int	check_line(char *line)
 int	check_borders(char **map, t_scene *scene)
 {
 	size_t	i;
-	size_t	map_width;
+	size_t	row_length;
 
-	if (check_line(map[0]) == -1)
-		return (-1);
-	if (check_line(map[scene->map_height - 1]) == -1)
-		return (-1);
 	i = 0;
 	while (i < scene->map_height)
 	{
-		map_width = ft_strlen(map[i]);
-		if (map[i][0] != '1' || map[i][map_width - 1] != '1')
-			return (-1);
+		if (i == 0 || i == scene->map_height - 1)
+		{
+			if (validate_border_row(map, i, scene) == -1)
+				return (-1);
+		}
+		row_length = ft_strlen(map[i]);
+		if (row_length > 0)
+		{
+			if ((map[i][0] != '1' && map[i][0] != ' ')
+				|| (map[i][row_length - 1] != '1'
+				&& map[i][row_length - 1] != ' '))
+				return (-1);
+		}
 		i++;
 	}
 	return (0);
 }
 
-int	check_map_valid(char **map, t_scene *scene)
+int	validate_border_row(char **map, size_t i, t_scene *scene)
 {
-	size_t	i;
-	size_t	player_count;
+	size_t	j;
+	size_t	row_length;
 
-	if (!map)
-		return (print_error("Map array is NULL", __FILE__, __LINE__), -1);
-	player_count = 0;
-	i = 0;
-	if (check_borders(map, scene) == -1)
-		return (print_error("Invalid map border", __FILE__, __LINE__), -1);
-	while (map[i])
+	j = 0;
+	row_length = ft_strlen(map[i]);
+	while (j < row_length)
 	{
-		if (process_map_line(map, i, &player_count, scene) == -1)
+		if (map[i][j] != '1' && map[i][j] != ' ')
 			return (-1);
-		i++;
+		if (map[i][j] == ' ' && i > 0 && i < scene->map_height - 1)
+		{
+			if (j > 0 && j < row_length - 1
+				&& (map[i][j - 1] == '0' || map[i][j + 1] == '0'))
+				return (-1);
+		}
+		j++;
 	}
-	if (player_count != 1)
-		return (print_error("Wrong player count", __FILE__, __LINE__), -1);
 	return (0);
 }

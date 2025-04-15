@@ -6,7 +6,7 @@
 /*   By: abamksa <abamksa@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/16 15:38:54 by abamksa           #+#    #+#             */
-/*   Updated: 2025/04/12 18:44:27 by abamksa          ###   ########.fr       */
+/*   Updated: 2025/04/15 16:29:03 by abamksa          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 static void	init_scene_data(t_scene *scene);
 static int	validate_texture_parts(char **parts);
-static int	set_texture_path(char **parts, t_scene *scene, int fd);
+static char	*join_path_parts(char **parts, int count, int i);
 
 int	parse_texture(char **texture, t_data *data, t_scene *scene)
 {
@@ -72,6 +72,28 @@ int	parse_texture_line(char *line, t_scene *scene)
 	return (0);
 }
 
+static char	*join_path_parts(char **parts, int count, int i)
+{
+	char	*fixed_path;
+	char	*temp;
+
+	fixed_path = ft_strdup(parts[1]);
+	while (i < count)
+	{
+		temp = fixed_path;
+		fixed_path = ft_strjoin(temp, " ");
+		free(temp);
+		temp = fixed_path;
+		fixed_path = ft_strjoin(temp, parts[i]);
+		free(temp);
+		i++;
+	}
+	free(parts[1]);
+	parts[1] = fixed_path;
+	parts[2] = NULL;
+	return (0);
+}
+
 static int	validate_texture_parts(char **parts)
 {
 	int	count;
@@ -81,24 +103,10 @@ static int	validate_texture_parts(char **parts)
 	count = 0;
 	while (parts[count])
 		count++;
-	if (count != 2)
+	if (count < 2)
 		return (double_free(parts),
 			print_error("Invalid texture line format", __FILE__, __LINE__), -1);
+	if (count > 2)
+		join_path_parts(parts, count, 2);
 	return (0);
-}
-
-static int	set_texture_path(char **parts, t_scene *scene, int fd)
-{
-	if (ft_strncmp(parts[0], "NO", 3) == 0)
-		scene->north_texture = ft_strdup(parts[1]);
-	else if (ft_strncmp(parts[0], "SO", 3) == 0)
-		scene->south_texture = ft_strdup(parts[1]);
-	else if (ft_strncmp(parts[0], "EA", 3) == 0)
-		scene->east_texture = ft_strdup(parts[1]);
-	else if (ft_strncmp(parts[0], "WE", 3) == 0)
-		scene->west_texture = ft_strdup(parts[1]);
-	else
-		return (close(fd), double_free(parts),
-			print_error("Invalid texture identifier", __FILE__, __LINE__), -1);
-	return (close(fd), double_free(parts), 0);
 }

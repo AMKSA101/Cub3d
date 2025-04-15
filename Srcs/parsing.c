@@ -6,7 +6,7 @@
 /*   By: abamksa <abamksa@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/16 15:54:15 by abamksa           #+#    #+#             */
-/*   Updated: 2025/04/12 19:23:58 by abamksa          ###   ########.fr       */
+/*   Updated: 2025/04/15 11:39:04 by abamksa          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,4 +85,11 @@ int	check_file_input(char **content, int size, t_data *data, t_scene *scene)
 		return (double_free(texture), double_free(color), double_free(map), -1);
 	calculate_map_width(scene);
 	return (double_free(texture), double_free(color), 0);
+}
+
+int	validate_rgb_values(int r, int g, int b)
+{
+	if (r < 0 || r > 255 || g < 0 || g > 255 || b < 0 || b > 255)
+		return (print_error("Invalid RGB value range", __FILE__, __LINE__), -1);
+	return (0);
 }

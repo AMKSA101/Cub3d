@@ -6,7 +6,7 @@
 /*   By: abamksa <abamksa@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/24 10:56:12 by abamksa           #+#    #+#             */
-/*   Updated: 2025/04/14 11:55:05 by abamksa          ###   ########.fr       */
+/*   Updated: 2025/04/15 16:31:02 by abamksa          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -170,6 +170,14 @@ typedef struct s_data
 	t_texture	*texture;
 }	t_data;
 
+typedef struct s_parse_data
+{
+	char	**content;
+	char	**texture;
+	char	**color;
+	int		indices[2];
+}	t_parse_data;
+
 /*draw.c*/
 void	get_wall_height(t_data *data, float start_x, int i);
 int		draw_loop(t_data *data);
@@ -263,12 +271,20 @@ int		is_wall_or_player(char c);
 int		is_player(char c);
 int		es_wall(char c);
 int		is_space(char c);
+int		check_map_valid(char **map, t_scene *scene);
+int		check_empty_line(char *line);
+int		validate_border_row(char **map, size_t i, t_scene *scene);
+int		check_zero_boundaries(char **map, size_t i, size_t j, size_t map_width);
 int		process_map_line(char **map, size_t i, size_t *player_count,
 			t_scene *scene);
 
 /*~~~~~~~~~~~~~~~~~~~~~texture parsing~~~~~~~~~~~~~~~~~~~~~~~~*/
 int		parse_texture(char **texture, t_data *data, t_scene *scene);
 int		parse_texture_line(char *line, t_scene *scene);
+int		set_texture_path(char **parts, t_scene *scene, int fd);
+int		assign_texture(char **parts, t_scene *scene, char *path);
+int		allocate_components(char ***texture, char ***color,
+			char ***map, int *vars);
 
 /*~~~~~~~~~~~~~~~~~~~~~color parsing~~~~~~~~~~~~~~~~~~~~~~~~*/
 int		parse_rgb_values(char *str, int *r, int *g, int *b);
@@ -276,6 +292,7 @@ int		parse_color_line(char *line, t_scene *scene);
 int		parse_color(char **color, t_scene *scene);
 int		set_color_in_scene(char *identifier, int *rgb, t_scene *scene);
 int		check_separator(char *str, char c);
+int		validate_rgb_values(int r, int g, int b);
 int		validate_rgb_values(int r, int g, int b);
 
 #endif

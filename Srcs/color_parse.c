@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: abamksa <abamksa@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/01/16 15:44:41 by abamksa           #+#    #+#             */
-/*   Updated: 2025/04/12 19:20:20 by abamksa          ###   ########.fr       */
+/*   Created: 2025/01/16 15:44:41 by abamksa           #+#             */
+/*   Updated: 2025/04/15 10:53:09 by abamksa          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,6 @@ int	parse_color(char **color, t_scene *scene)
 	return (0);
 }
 
-// Helper function for setting color in scene
 int	set_color_in_scene(char *identifier, int *rgb, t_scene *scene)
 {
 	if (ft_strncmp(identifier, "F", 2) == 0)
@@ -43,27 +42,43 @@ int	set_color_in_scene(char *identifier, int *rgb, t_scene *scene)
 	return (0);
 }
 
-// Helper function for color
+static char	*get_trimmed_color_str(char **parts)
+{
+	char	*trimmed_line;
+
+	if (!parts[1])
+	{
+		trimmed_line = parts[0] + 1;
+		while (*trimmed_line && (*trimmed_line == ' ' || *trimmed_line == '\t'))
+			trimmed_line++;
+	}
+	else
+		trimmed_line = parts[1];
+	return (trimmed_line);
+}
+
 int	parse_color_line(char *line, t_scene *scene)
 {
 	char	**parts;
-	int		count;
 	int		rgb[3];
+	int		i;
+	char	*trimmed_line;
 
 	if (!line)
 		return (print_error("color line is NULL", __FILE__, __LINE__), -1);
-	parts = ft_split(line, ' ');
+	i = 0;
+	while (line[i] && (line[i] == ' ' || line[i] == '\t'))
+		i++;
+	parts = ft_split(line + i, ' ');
 	if (!parts)
 		return (print_error(strerror(errno), __FILE__, __LINE__), -1);
-	if (check_separator(parts[1], ',') == -1)
+	if (!parts[0] || (parts[0][0] != 'F' && parts[0][0] != 'C'))
+		return (double_free(parts), print_error(
+				"Invalid color identifier", __FILE__, __LINE__), -1);
+	trimmed_line = get_trimmed_color_str(parts);
+	if (check_separator(trimmed_line, ',') == -1)
 		return (double_free(parts), -1);
-	count = 0;
-	while (parts[count])
-		count++;
-	if (count != 2)
-		return (double_free(parts),
-			print_error("Invalid color line format", __FILE__, __LINE__), -1);
-	if (parse_rgb_values(parts[1], &rgb[0], &rgb[1], &rgb[2]) == -1)
+	if (parse_rgb_values(trimmed_line, &rgb[0], &rgb[1], &rgb[2]) == -1)
 		return (double_free(parts), -1);
 	if (set_color_in_scene(parts[0], rgb, scene) == -1)
 		return (double_free(parts), -1);

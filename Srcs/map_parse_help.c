@@ -6,7 +6,7 @@
 /*   By: abamksa <abamksa@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/12 09:36:44 by abamksa           #+#    #+#             */
-/*   Updated: 2025/04/12 18:58:23 by abamksa          ###   ########.fr       */
+/*   Updated: 2025/04/15 15:58:53 by abamksa          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,18 +19,20 @@ int	is_valid_zero(char **map, size_t i, size_t j, t_scene *scene)
 	size_t	next_line_width;
 
 	map_width = ft_strlen(map[i]);
-	if (j == 0 || j == map_width - 1)
+	if (!check_zero_boundaries(map, i, j, map_width))
 		return (0);
 	if (i > 0)
 	{
 		prev_line_width = ft_strlen(map[i - 1]);
-		if (j >= prev_line_width || !is_wall_or_player(map[i - 1][j]))
+		if (j >= prev_line_width || map[i - 1][j] == ' '
+			|| (!is_wall_or_player(map[i - 1][j])))
 			return (0);
 	}
 	if (i + 1 < scene->map_height)
 	{
 		next_line_width = ft_strlen(map[i + 1]);
-		if (j >= next_line_width || !is_wall_or_player(map[i + 1][j]))
+		if (j >= next_line_width || map[i + 1][j] == ' '
+			|| (!is_wall_or_player(map[i + 1][j])))
 			return (0);
 	}
 	if (!is_wall_or_player(map[i][j - 1]) || !is_wall_or_player(map[i][j + 1]))
