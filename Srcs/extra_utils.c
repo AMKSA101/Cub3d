@@ -6,7 +6,7 @@
 /*   By: abamksa <abamksa@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/15 16:27:02 by abamksa           #+#    #+#             */
-/*   Updated: 2025/04/15 16:30:34 by abamksa          ###   ########.fr       */
+/*   Updated: 2025/04/16 19:20:25 by abamksa          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,13 +34,29 @@ int	allocate_components(char ***texture, char ***color, char ***map, int *vars)
 int	assign_texture(char **parts, t_scene *scene, char *path)
 {
 	if (ft_strncmp(parts[0], "NO", 3) == 0)
+	{
+		if (scene->north_texture)
+			free(scene->north_texture);
 		scene->north_texture = ft_strdup(path);
+	}
 	else if (ft_strncmp(parts[0], "SO", 3) == 0)
+	{
+		if (scene->south_texture)
+			free(scene->south_texture);
 		scene->south_texture = ft_strdup(path);
+	}
 	else if (ft_strncmp(parts[0], "EA", 3) == 0)
+	{
+		if (scene->east_texture)
+			free(scene->east_texture);
 		scene->east_texture = ft_strdup(path);
+	}
 	else if (ft_strncmp(parts[0], "WE", 3) == 0)
+	{
+		if (scene->west_texture)
+			free(scene->west_texture);
 		scene->west_texture = ft_strdup(path);
+	}
 	else
 		return (-1);
 	return (0);

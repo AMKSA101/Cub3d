@@ -6,7 +6,7 @@
 /*   By: abamksa <abamksa@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/16 15:54:15 by abamksa           #+#    #+#             */
-/*   Updated: 2025/04/15 11:39:04 by abamksa          ###   ########.fr       */
+/*   Updated: 2025/04/16 19:24:22 by abamksa          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,9 +75,7 @@ int	check_file_input(char **content, int size, t_data *data, t_scene *scene)
 	if (allocate_components(&texture, &color, &map, vars) == -1)
 		return (-1);
 	if (extract_textures_and_colors(content, map_start, texture, color) == -1)
-		return (double_free(texture), double_free(color), double_free(map),
-			print_error("Invalid texture/color arguments", __FILE__, __LINE__),
-			-1);
+		return (double_free(texture), double_free(color), double_free(map), -1);
 	copy_map_data(content, map_start, size, map);
 	if (parse_texture(texture, data, scene) == -1
 		|| parse_color(color, scene) == -1
