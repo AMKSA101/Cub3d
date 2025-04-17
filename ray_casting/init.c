@@ -41,7 +41,7 @@ void	init_player_position(t_player *player, t_scene *img)
 		j = 0;
 		while (map[i][j])
 		{
-			if (map[i][j] == 'S')
+			if (map[i][j] == 'S' || map[i][j] == 'N' || map[i][j] == 'W' || map[i][j] == 'E' )
 			{
 				player->x = j * BLOCK;
 				player->y = i * BLOCK;
@@ -54,7 +54,14 @@ void	init_player_position(t_player *player, t_scene *img)
 
 void	init_player(t_player *player, t_scene *img)
 {
-	player->angle = PI / 2;
+	// if ( == 'E')
+		// player->angle = PI;
+	// if ( == 'S')
+		// player->angle = 3 * PI / 2;
+	// if ( == 'W')
+		// player->angle = 2 * PI;
+	// if ( == 'N')
+		// player->angle = PI / 2;
 	player->key_up = false;
 	player->key_down = false;
 	player->key_left = false;
