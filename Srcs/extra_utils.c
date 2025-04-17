@@ -6,7 +6,7 @@
 /*   By: abamksa <abamksa@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/15 16:27:02 by abamksa           #+#    #+#             */
-/*   Updated: 2025/04/15 16:30:34 by abamksa          ###   ########.fr       */
+/*   Updated: 2025/04/17 13:17:10 by abamksa          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,16 +31,47 @@ int	allocate_components(char ***texture, char ***color, char ***map, int *vars)
 	return (0);
 }
 
+int	texture_assination(char **parts, t_scene *scene, char *path)
+{
+	if (ft_strncmp(parts[0], "EA", 3) == 0)
+	{
+		if (scene->east_texture)
+			return (print_error("Duplicate east texture definition",
+					__FILE__, __LINE__), -1);
+		scene->east_texture = ft_strdup(path);
+	}
+	else if (ft_strncmp(parts[0], "WE", 3) == 0)
+	{
+		if (scene->west_texture)
+			return (print_error("Duplicate west texture definition",
+					__FILE__, __LINE__), -1);
+		scene->west_texture = ft_strdup(path);
+	}
+	return (0);
+}
+
 int	assign_texture(char **parts, t_scene *scene, char *path)
 {
 	if (ft_strncmp(parts[0], "NO", 3) == 0)
+	{
+		if (scene->north_texture)
+			return (print_error("Duplicate north texture definition",
+					__FILE__, __LINE__), -1);
 		scene->north_texture = ft_strdup(path);
+	}
 	else if (ft_strncmp(parts[0], "SO", 3) == 0)
+	{
+		if (scene->south_texture)
+			return (print_error("Duplicate south texture definition",
+					__FILE__, __LINE__), -1);
 		scene->south_texture = ft_strdup(path);
-	else if (ft_strncmp(parts[0], "EA", 3) == 0)
-		scene->east_texture = ft_strdup(path);
-	else if (ft_strncmp(parts[0], "WE", 3) == 0)
-		scene->west_texture = ft_strdup(path);
+	}
+	else if (ft_strncmp(parts[0], "EA", 3) == 0
+		|| ft_strncmp(parts[0], "WE", 3) == 0)
+	{
+		if (texture_assination(parts, scene, path) == -1)
+			return (-1);
+	}
 	else
 		return (-1);
 	return (0);
@@ -65,7 +96,6 @@ int	set_texture_path(char **parts, t_scene *scene, int fd)
 	if (i < path_len - 1)
 		path[i + 1] = '\0';
 	if (assign_texture(parts, scene, path) == -1)
-		return (close(fd), double_free(parts),
-			print_error("Invalid texture identifier", __FILE__, __LINE__), -1);
+		return (close(fd), double_free(parts), -1);
 	return (close(fd), double_free(parts), 0);
 }

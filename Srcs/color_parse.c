@@ -33,9 +33,19 @@ int	parse_color(char **color, t_scene *scene)
 int	set_color_in_scene(char *identifier, int *rgb, t_scene *scene)
 {
 	if (ft_strncmp(identifier, "F", 2) == 0)
+	{
+		if (scene->floor_color != 0)
+			return (print_error("Duplicate floor color definition",
+					__FILE__, __LINE__), -1);
 		scene->floor_color = (rgb[0] << 16) | (rgb[1] << 8) | rgb[2];
+	}
 	else if (ft_strncmp(identifier, "C", 2) == 0)
+	{
+		if (scene->ceiling_color != 0)
+			return (print_error("Duplicate ceiling color definition",
+					__FILE__, __LINE__), -1);
 		scene->ceiling_color = (rgb[0] << 16) | (rgb[1] << 8) | rgb[2];
+	}
 	else
 		return (print_error("Invalid color identifier", __FILE__, __LINE__),
 			-1);
