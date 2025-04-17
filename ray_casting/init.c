@@ -6,7 +6,7 @@
 /*   By: abamksa <abamksa@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 10:54:38 by a-ait-bo          #+#    #+#             */
-/*   Updated: 2025/04/14 12:46:18 by abamksa          ###   ########.fr       */
+/*   Updated: 2025/04/17 16:48:09 by abamksa          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,18 @@ void	init_game(t_data *data)
 			&img->line_length, &img->endian);
 }
 
+void	save_orientation(t_player *player, char orientation)
+{
+	if (orientation == 'E')
+		player->angle = PI;
+	if (orientation == 'S')
+		player->angle = 3 * PI / 2;
+	if (orientation == 'W')
+		player->angle = 2 * PI;
+	if (orientation == 'N')
+		player->angle = PI / 2;
+}
+
 void	init_player_position(t_player *player, t_scene *img)
 {
 	char	**map;
@@ -41,8 +53,10 @@ void	init_player_position(t_player *player, t_scene *img)
 		j = 0;
 		while (map[i][j])
 		{
-			if (map[i][j] == 'S' || map[i][j] == 'N' || map[i][j] == 'W' || map[i][j] == 'E' )
+			if (map[i][j] == 'S' || map[i][j] == 'N' || map[i][j] == 'W'
+					|| map[i][j] == 'E' )
 			{
+				save_orientation(player, map[i][j]);
 				player->x = j * BLOCK;
 				player->y = i * BLOCK;
 			}
@@ -54,14 +68,6 @@ void	init_player_position(t_player *player, t_scene *img)
 
 void	init_player(t_player *player, t_scene *img)
 {
-	// if ( == 'E')
-		// player->angle = PI;
-	// if ( == 'S')
-		// player->angle = 3 * PI / 2;
-	// if ( == 'W')
-		// player->angle = 2 * PI;
-	// if ( == 'N')
-		// player->angle = PI / 2;
 	player->key_up = false;
 	player->key_down = false;
 	player->key_left = false;
