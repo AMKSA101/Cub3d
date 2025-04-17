@@ -6,7 +6,7 @@
 /*   By: abamksa <abamksa@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/24 11:18:49 by abamksa           #+#    #+#             */
-/*   Updated: 2025/04/17 13:18:04 by abamksa          ###   ########.fr       */
+/*   Updated: 2025/04/17 15:23:10 by abamksa          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,21 +104,15 @@ int	main(int ac, char **av)
 	if (ac == 2)
 	{
 		if (ft_parse(av[1], &data) == -1)
-		{
-			free_scene(&scene);
-			return (-1);
-		}
+			return (free_scene(&scene), -1);
 		init_game(&data);
 		data.texture = get_textures(&data);
 		if (!data.texture)
-		{
-			free_scene(&scene);
-			return (-1);
-		}
+			return (free_scene(&scene), -1);
 		mlx_hook_loop(&data);
 		free_all(&data);
 	}
 	else
-		return (1);
+		return (-1);
 	return (0);
 }
