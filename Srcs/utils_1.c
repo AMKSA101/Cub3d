@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: abamksa <abamksa@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/12/30 10:42:18 by abamksa           #+#    #+#             */
-/*   Updated: 2025/04/12 18:41:02 by abamksa          ###   ########.fr       */
+/*   Created: 2025/04/17 13:07:44 by abamksa           #+#    #+#             */
+/*   Updated: 2025/04/17 13:07:48 by abamksa          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ void	print_error(char *error, char *file, int line)
 	ft_putstr_fd(file, 2);
 	ft_putstr_fd(":", 2);
 	ft_putnbr_fd(line, 2);
+	ft_putstr_fd("\n", 2);
 	ft_putstr_fd(RESET, 2);
 }
 

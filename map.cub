@@ -1,6 +1,6 @@
 F +220,100,012
-F +220,100,012
 C 225,30,0
+
 WE ./Textures/stone-wall.xpm
 SO ./Textures/la.xpm
 EA ./Textures/aghrab_texture.xpm

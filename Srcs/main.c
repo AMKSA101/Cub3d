@@ -6,7 +6,7 @@
 /*   By: abamksa <abamksa@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/24 11:18:49 by abamksa           #+#    #+#             */
-/*   Updated: 2025/04/16 19:20:25 by abamksa          ###   ########.fr       */
+/*   Updated: 2025/04/17 13:18:04 by abamksa          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,14 +19,19 @@ void	*load_texture(t_data *data, int *width, int *height, char *path)
 	if (!path)
 	{
 		print_error("Texture path is NULL", __FILE__, __LINE__);
-		destroynotify(data);
-		return (NULL);
+		if (data->texture)
+			free(data->texture);
+		free_scene(data->scene);
+		exit(1);
 	}
 	texture = mlx_xpm_file_to_image(data->mlx->mlx_ptr, path, width, height);
 	if (!texture)
 	{
 		print_error("Error loading texture", __FILE__, __LINE__);
-		destroynotify(data);
+		if (data->texture)
+			free(data->texture);
+		free_scene(data->scene);
+		exit(1);
 	}
 	return (texture);
 }
@@ -63,8 +68,15 @@ static t_texture	*get_textures(t_data *data)
 	{
 		print_error("Error allocating memory for textures", __FILE__, __LINE__);
 		destroynotify(data);
+		return (NULL);
 	}
 	texture_load(data, textures);
+	if (!textures->north || !textures->south
+		|| !textures->east || !textures->west)
+	{
+		free(textures);
+		return (NULL);
+	}
 	return (textures);
 }
 
@@ -98,6 +110,11 @@ int	main(int ac, char **av)
 		}
 		init_game(&data);
 		data.texture = get_textures(&data);
+		if (!data.texture)
+		{
+			free_scene(&scene);
+			return (-1);
+		}
 		mlx_hook_loop(&data);
 		free_all(&data);
 	}
