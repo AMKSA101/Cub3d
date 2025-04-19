@@ -1,15 +1,16 @@
 C 130,200,229
 F 0,128,0
-WE ./Textures/WE.xpm
-SO ./Textures/SO.xpm
-EA ./Textures/EA.xpm
-NO ./Textures/NO.xpm
+
+WE ./Textures/bricks-we.xpm
+SO ./Textures/bricks-so.xpm
+EA ./Textures/bricks-ea.xpm
+NO ./Textures/bricks-no.xpm
 
 
 111111111111111
-111111000111111
+1111110S0111111
 111110000011111
-1111000W0001111
+111100000001111
 111000000000111
 110000010000011
 100001101100001
