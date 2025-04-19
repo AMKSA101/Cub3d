@@ -57,8 +57,8 @@ void	init_player_position(t_player *player, t_scene *img)
 					|| map[i][j] == 'E' )
 			{
 				save_orientation(player, map[i][j]);
-				player->x = j * BLOCK;
-				player->y = i * BLOCK;
+				player->x = j * BLOCK + BLOCK / 2;
+				player->y = i * BLOCK + BLOCK / 2;
 			}
 			j++;
 		}
