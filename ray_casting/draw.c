@@ -31,6 +31,7 @@ int	draw_loop(t_data *data)
 	draw_pixel(data, player->x / BLOCK * 10,
 		player->y / BLOCK * 10, size_color);
 	mlx_put_image_to_window(mlx->mlx_ptr, mlx->win_ptr, mlx->img, 0, 0);
+	display_player_position(data);
 	return (0);
 }
 

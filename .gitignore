@@ -1,0 +1,10 @@
+# Build artifacts
+*.o
+*.a
+cub3D
+Obj/
+libft/*.o
+libft/libft.a
+minilibx-linux/*.o
+minilibx-linux/*.a
+minilibx-linux/obj/

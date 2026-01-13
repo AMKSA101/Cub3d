@@ -203,6 +203,7 @@ void	step_y_set(t_data *data, t_ray *ray);
 void	debug_ray_info(t_data *data, int i);
 void	check_tex(t_data *data, int i);
 void	draw_tex(t_data *data, int i, double tex_x, double tex_y);
+void	display_player_position(t_data *data);
 /*------*/
 
 /*draw_getters.c*/
