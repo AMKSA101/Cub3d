@@ -27,6 +27,20 @@ void	debug_ray_info(t_data *data, int i)
 	}
 }
 
+void	display_player_position(t_data *data)
+{
+	char	pos_str[256];
+	int		map_x;
+	int		map_y;
+
+	map_x = (int)(data->player->x / BLOCK);
+	map_y = (int)(data->player->y / BLOCK);
+	snprintf(pos_str, sizeof(pos_str), "Position: (%.1f, %.1f) Map: (%d, %d)",
+		data->player->x, data->player->y, map_x, map_y);
+	mlx_string_put(data->mlx->mlx_ptr, data->mlx->win_ptr,
+		10, 40, 0x00FF00, pos_str);
+}
+
 void	check_tex(t_data *data, int i)
 {
 	int	y;
